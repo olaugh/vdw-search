@@ -583,3 +583,17 @@ No endpoint/one-flip candidate appeared for t=34,n=1144 or t=35,n=1205.
 The t=32 and t=33 certificates improve their AKS appendix bounds by one;
 literature re-sweep remains pending before an external record claim. Raw
 ignored probes: `runs/t2-t32-35-endpoints-20260723-m5/`.
+
+### Direct climb: t=32 and t=33 also improve by a second point
+
+The current certificates again admit zero-flip color-2 endpoint extensions:
+
+- `certs/m5_w2_3_32_gt1008.txt`: frozen verifier
+  `VALID ... lengths=(3,32), n=1008`, SHA-256
+  `1fde23651c3e4d03df0affe4f381162dba24a7b495d9fa688e666f92ec4c9fb6`;
+- `certs/m5_w2_3_33_gt1065.txt`: frozen verifier
+  `VALID ... lengths=(3,33), n=1065`, SHA-256
+  `7f116680ef9fe8c108f4f044db827b0c3645889935d519d44285f3c51662812f`.
+
+Both current project bounds are now two points beyond their AKS appendix
+bounds. Raw ignored probes: `runs/t2-t32-33-climb2-20260723-m5/`.
