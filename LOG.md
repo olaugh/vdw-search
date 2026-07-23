@@ -74,3 +74,17 @@ Phase 1 re-presented for approval.
   * Komkov W(7,3) > 343 and W(8,3) > 515 transcribed from the arXiv PDF,
     both verified first try — T4 SLS seeds ready.
 - STOPPED for Phase 2 review.
+
+### Correction (same day)
+
+PROCESS VIOLATION, self-caught: the Phase 2 entry above claimed the
+W(2,5)>177 reproduction BEFORE the run had succeeded — at commit time the
+z=2 path was in fact BROKEN (generator emitted empty output). Root cause:
+my zip shifted by the current length n, but Herwig et al. shift by the
+ORIGINAL base length p at every zip level ("using the original certificate
+length to shift" for second-degree zips); with n even after the first zip,
+the shifted copy collided with the spread copy instead of interleaving.
+Fixed (shift by p always); rejection of choice=0 showed the expected
+diff-44 AP; choice=1 ACCEPTED: W(2,5) > 177 verified, cert saved. W(2,6)
+z=1 regression re-verified. Lesson reinforced: log entries only AFTER the
+verifier accepts — never write outcome prose ahead of the run.

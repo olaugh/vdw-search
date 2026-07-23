@@ -141,7 +141,10 @@ int main(int argc, char **argv) {
     for (long long j = 1; j <= n; j++) {
       long long spread = 2 * j - 1;
       nz[spread] = cyc[j];                                /* spreading  */
-      long long shifted = ((spread - 1 - n) % (2 * n) + (2 * n)) % (2 * n) + 1;
+      /* Herwig et al.: the shift is by the ORIGINAL base length p at every
+       * zip level ("using the original certificate length to shift" for
+       * second-degree zips), not by the current length n. */
+      long long shifted = ((spread - 1 - p) % (2 * n) + (2 * n)) % (2 * n) + 1;
       nz[shifted] = (int)(r + 1) - cyc[j];                /* turn+shift */
     }
     for (long long j = 1; j <= 2 * n; j++) {
