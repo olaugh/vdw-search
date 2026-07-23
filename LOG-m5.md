@@ -626,3 +626,17 @@ The fourth one-point batch extended both current certificates:
 
 The current project bounds are now four points beyond their AKS appendix
 bounds. Raw ignored probes: `runs/t2-t32-33-climb4-20260723-m5/`.
+
+### Direct climb: fifth points for t=32 and t=33
+
+Both color-2 endpoint extensions remained valid without a repair:
+
+- `certs/m5_w2_3_32_gt1011.txt`: frozen verifier
+  `VALID ... lengths=(3,32), n=1011`, SHA-256
+  `abe37f598351ac49f07e31a819c3ca87cdfd86d1537b9988613a18dc3c7df8cc`;
+- `certs/m5_w2_3_33_gt1068.txt`: frozen verifier
+  `VALID ... lengths=(3,33), n=1068`, SHA-256
+  `aabc514c7ec67c0a72626e07e1e5b9fedb2bbe152e7f7d4df1751e718dbc3b40`.
+
+The current project bounds are now five points beyond their AKS appendix
+bounds. Raw ignored probes: `runs/t2-t32-33-climb5-20260723-m5/`.
