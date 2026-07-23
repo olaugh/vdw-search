@@ -216,3 +216,14 @@ cutoffs.
 The n=600 models are calibration artifacts below the already tracked n=930
 AKS certificate, not new lower bounds. The largest cold-solved n is not yet
 pinned tightly enough for the 1000x stopping budget; narrow the 600–700 gap.
+
+- Narrowing batch, six 60-second cold starts each:
+  - n=625: 1/6 solved at 57.20 seconds; model accepted by frozen verifier.
+  - n=650: 0/6 solved; best violation count 2.
+  - n=675: 0/6 solved; best violation count 5.
+  Raw ignored logs: `runs/t31-cal-n625-675-20260723-m5/`.
+
+The current largest cold-solved n is 625 with observed solve cost 57.20 s.
+The literal 1000x stopping allowance is therefore about 15.9 hours. That is
+well over the one-hour approval threshold and is NOT authorized or scheduled.
+Initial n=931 batches remain short probes far below that budget.
