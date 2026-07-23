@@ -80,6 +80,14 @@ paper.
 | t | paper's claimed bound | certificate length | tracked certificate | verifier |
 |---:|---:|---:|---|---|
 | 31 | `w(2;3,31) > 930` | 930 | `certs/aks_w2_3_31_gt930.txt` | accepted |
+| 32 | `w(2;3,32) > 1006` | 1006 | `certs/aks_w2_3_32_gt1006.txt` | accepted |
+| 33 | `w(2;3,33) > 1063` | 1063 | `certs/aks_w2_3_33_gt1063.txt` | accepted |
+| 34 | `w(2;3,34) > 1143` | 1143 | `certs/aks_w2_3_34_gt1143.txt` | accepted |
+| 35 | `w(2;3,35) > 1204` | 1204 | `certs/aks_w2_3_35_gt1204.txt` | accepted |
+| 36 | `w(2;3,36) > 1257` | 1257 | `certs/aks_w2_3_36_gt1257.txt` | accepted |
+| 37 | `w(2;3,37) > 1338` | 1338 | `certs/aks_w2_3_37_gt1338.txt` | accepted |
+| 38 | `w(2;3,38) > 1378` | 1378 | `certs/aks_w2_3_38_gt1378.txt` | accepted |
+| 39 | `w(2;3,39) > 1418` | 1418 | `certs/aks_w2_3_39_gt1418.txt` | accepted |
 
 ## Corrections from external review (Fable) — verified against sources
 

@@ -104,3 +104,24 @@ For each t=31..39:
   `d265a9631b348a89a34fb150b1bebc6bf1e8e5adbc424bacbeef47aee11412e4`.
 - This reproduces the published lower bound and supplies the required t=31
   seed. It is not a new bound.
+
+### AKS t=32..39 recovered and independently verified
+
+The remaining eight appendix payloads were mechanically extracted from the
+same arXiv v4 TeX source, expanded with `aks_expand.c`, checked against the
+paper's stated interval length, and then accepted individually by the frozen
+standalone verifier:
+
+| t | claimed bound | cert length | certificate SHA-256 |
+|---:|---:|---:|---|
+| 32 | `> 1006` | 1006 | `4f2380e7cceda4f492bfce2df56c2ef2f19708e853e821812a09e006ad7b8105` |
+| 33 | `> 1063` | 1063 | `b3c147e1cf0421b8892bbe741cd586e83265eba486007b4da5fbdf1113aeb732` |
+| 34 | `> 1143` | 1143 | `801fa2221d8be26aa137a5b3281e26d885c8f3489c2d84dba44d64cfbb714fd0` |
+| 35 | `> 1204` | 1204 | `ba0050506cf207c52e009a6b92e22f41b4f6c16765b6e8bfb4811f509bdf7f6e` |
+| 36 | `> 1257` | 1257 | `8adf761cd1e9c7678d6bff08187e72393cb9fd9ade116f63bf0ccae32cac3aea` |
+| 37 | `> 1338` | 1338 | `8215e8b7129ea2baab82ebbc261476cd5c12a78e43ef84fe5245e7036d0580c0` |
+| 38 | `> 1378` | 1378 | `08e010eb1fac0b33eec2b3d4a8d5e7ac54690cd30e80f39cba4b22762b5176bc` |
+| 39 | `> 1418` | 1418 | `140550d6664dc1d009bed17798b8536d24b87db1069bd181b1655720a075bae1` |
+
+This completes the requested AKS seed recovery for t=31..39. These are
+reproductions of published lower bounds, not improvements.
