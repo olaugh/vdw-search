@@ -1,2 +1,11 @@
+# build artifacts
 verifier
+gen_residue
+sls
 *.o
+*.dSYM/
+
+# bulky run logs and scratch (certs/, records.md, LOG*.md, sources always tracked)
+runs/
+*.out
+*.tmp
