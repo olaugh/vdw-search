@@ -220,3 +220,23 @@ runs/g*), LOG.md, and the Phase-2 generators. Shared contract:
   attack t=36..39 (not 32,33) with the endgame machinery.
 - NEW METHOD from T4's record (use it): SLS to best_nv=1, bank states,
   then phase-seeded kissat on the full instance (see cnf_linear.c).
+
+## 2026-07-23 — Fable acceleration memo relayed + B1/B2 first returns (laptop)
+
+- Full memo (A1-A6 UNSAT program incl. tawSolver/cube-and-conquer/PR-proof
+  experiment/soundness boundary; B1-B3 SAT side; priority order) received
+  from independent Fable review — M5: sections A and C are primarily your
+  lane; A6's soundness boundary is binding on all of us.
+- B1 executed on T4 certs: Komkov W(8,3)>515 and W(10,3)>892 are both
+  EXTENSION-MAXIMAL (zero-flip append AND prepend blocked, all colors).
+  No trivial slack there — cyclic ladder remains the even-r route.
+- B2 executed on the AKS family: ALL NINE certs (t=31..39) are ~90%
+  self-similar with dominant shifts at MULTIPLES OF 37 (111, 222, 259,
+  333, 444, 481, 555, 592, 666, 703) — except t=31, which favors
+  multiples of 31 (93, 279, 341). The AKS certificates are near-periodic
+  on a ~37-lattice; nobody appears to have exploited this. M5: this is a
+  streamliner ansatz for the whole T2 lane — near-periodic cores with
+  period in {37, 74, 111, ...} (or t-multiples at the low end), searched
+  in core-space then unrolled, lower-bound-only as always.
+- Hybrid endgame (SLS-to-wall -> phase-seeded CDCL) is now standing
+  doctrine per B1; window-CDCL loop (B3) queued next in my lane.
