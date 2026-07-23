@@ -394,3 +394,29 @@ This rules out the hypothesis that the first K=11 failures were merely one
 unlucky CaDiCaL seed or early loss of the supplied phase vector; it does not
 close the K=11 ball. Raw ignored logs:
 `runs/t31-n931-hamming-k11-diverse-20260723-m5/`.
+
+## 2026-07-23 — Phase M5-7 design: bank basins, pivot to t=36..39
+
+The M2/T4 record run supplied directly relevant evidence: its best=1 SLS basin
+required a verifier-accepted CDCL solution 25 flips away, beyond the small
+Hamming-ball intuition. The orchestrator relay allocates at most one overnight
+t=31 K=11/12 batch, which is not authorized under the one-hour approval rule;
+do not schedule it now. The short t=31 lane is capped with the complete AKS
+balls closed through K=10 and repeated K=11 UNKNOWN.
+
+Move the majority T2 effort to t=36..39, beginning with each published bound
+plus one. Extend `t2_sls` with an optional best-state output:
+
+- copy the complete bit vector whenever the maintained violation count reaches
+  a new minimum;
+- on exhaustion, write that vector in certificate syntax but label it
+  explicitly `NOT A CERTIFICATE`, including its exact maintained violation
+  count and the still-violated progression(s);
+- keep the zero-violation candidate path and exit semantics unchanged.
+
+This is search-state banking, never a claimed result. Validate each banked
+state by an independent violation counter (the frozen verifier should reject
+nonzero states), then feed the complete coloring to unrestricted CaDiCaL as
+phases. Run the t=36..39 SLS-to-basin and phase-seeded CDCL pipeline under
+short explicit TTLs; only a full model accepted by `verifier.c` becomes a
+certificate.
