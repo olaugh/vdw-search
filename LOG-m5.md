@@ -289,3 +289,24 @@ seed-neighborhood results show that the immediate n=930 seed boundary is far
 more useful than the broad structural starts, but the current walks do not
 retain or systematically explore that near-solution neighborhood. Raw ignored
 logs: `runs/t31-n931-b1-20260723-m5/`.
+
+## 2026-07-23 — Phase M5-5 design: bounded seed-neighborhood CDCL
+
+The n=931 SLS batch reached but did not improve best=1 from three AKS-seeded
+starts. An exhaustive diagnostic over all 931 insertion positions and both
+inserted colors independently found no direct insertion extension: the minimum
+is one violated progression. This is search guidance, not a certificate.
+
+Add an optional CaDiCaL streamliner constraining the Hamming distance from the
+seed-derived phase vector to at most K. Encode the cardinality bound with a
+plain CNF sequential counter; do not share code with the verifier. Also permit
+aligning a shorter seed to the right edge, so left- and right-aligned extension
+neighborhoods can be searched symmetrically.
+
+The Hamming bound is a search restriction, not a proof-safe symmetry break:
+UNSAT means only that the selected neighborhood has no solution. A SAT model
+is still a valid unrestricted lower-bound witness only after the frozen
+standalone verifier accepts the complete emitted certificate. Validate the
+counter against exhaustive small-instance Hamming-ball enumeration, test K=0
+and K>=n boundaries, and rerun the existing unrestricted CaDiCaL regressions
+before launching parallel radii.
