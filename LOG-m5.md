@@ -540,3 +540,29 @@ Validation before real use:
   verdicts, with every SAT model verifier-accepted;
 - ASan/UBSan passed a best=1 radius-1 window solve and correctly reported one
   independent seed violation and 12 free variables.
+
+### Real best=1 window results
+
+For all eight t=37/n=1339 and t=38/n=1379 endpoint-color/orientation
+best=1 banks:
+
+- radii 0,1,2,4,8 returned complete window UNSAT;
+- radius 8 freed 619 of 1339 variables for t=37 and 638 of 1379 for t=38;
+- radius 16 freed 1195/1339 and 1231/1379 respectively, but every lane
+  reached 60 seconds UNKNOWN.
+
+The best=1 next-length walls after the new records behaved similarly:
+t=36,n=1260 windows at radii 1 and 4 were UNSAT, while radius 16
+(1172/1260 free) was UNKNOWN; t=39,n=1421 radii 1 and 4 were UNSAT, while
+radius 16 (1269/1421 free) was UNKNOWN. Direct original/reversed endpoint
+probes with both colors and one search flip also produced no n=1260 or
+n=1421 candidate.
+
+Thus these basins have no repair even when roughly 46% of the t=37/t=38
+interval is free around the violated progression; by radius 16 the window is
+already close to the full hard instance. This is structural dead-basin
+evidence, not a lower-bound result. No candidate was emitted and no residual
+workers remained. Raw ignored logs:
+`runs/t2-window-cdcl-b1-20260723-m5/`,
+`runs/t2-window-cdcl-b2-20260723-m5/`, and
+`runs/t2-window-cdcl-b3-20260723-m5/`.
