@@ -266,3 +266,26 @@ sample. The trained PGO build is 5.8% slower than release for DDFW and 10.4%
 slower for WalkSAT, so it is rejected rather than presumed beneficial. Use the
 native-only binary for DDFW lanes and the existing release binary for WalkSAT
 lanes in the first n=931 portfolio.
+
+### First above-record t=31 batch
+
+An 18-lane, 300-second n=931 portfolio completed with explicit per-process
+limits and no residual workers:
+
+- seeded reflected CaDiCaL: UNKNOWN at 300.001 s;
+- seed-derived DDFW at perturbations 0,1,2R,3,5R,8: best violations
+  1,1,21,56,62,63;
+- seed-derived focused WalkSAT at perturbations 0R,1,2R,3,5R,8: best
+  violations 1,15,73,32,59,76;
+- random/structural DDFW (random density 15, cyclic q=31, digit q=10):
+  best violations 69,69,71;
+- random/structural focused WalkSAT (random density 20, palindrome density
+  20): best violations 83,85.
+
+The SLS lanes completed 2.12–2.24 million DDFW flips or 2.62–2.69 million
+WalkSAT flips under the full 18-process load. No lane emitted a candidate, so
+there was no certificate to accept, record, or claim. The three best=1
+seed-neighborhood results show that the immediate n=930 seed boundary is far
+more useful than the broad structural starts, but the current walks do not
+retain or systematically explore that near-solution neighborhood. Raw ignored
+logs: `runs/t31-n931-b1-20260723-m5/`.
