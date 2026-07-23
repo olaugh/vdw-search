@@ -674,3 +674,18 @@ with `t2_cadical.c`. First validate emitted SAT models against the frozen
 verifier on small solved instances and current certificates, then run the
 full phase-seeded solver on the high-priority banked best=1 t=37/t=38 states.
 Every SAT model is only a candidate until the frozen verifier accepts it.
+
+Implementation: `t2_cnf.c` and `t2_decode_model.py`. Validation before the
+first real run:
+
+- strict C99 native and ASan/UBSan builds passed;
+- DIMACS header clause counts and maximum variable IDs matched the emitted
+  bodies for seeded n=1011,t=32 and unseeded n=9,t=4 instances;
+- the all-false encoded assignment reconstructed the n=1011 seed exactly and
+  the frozen verifier accepted the decoded certificate;
+- 39 independently brute-forced unseeded cases (n=5..14, t=3..6) exactly
+  matched CaDiCaL SAT/UNSAT verdicts through the emitted reflection encoding,
+  and every SAT model decoded to a frozen-verifier-accepted certificate.
+
+Kissat is not installed on this M5 host (the logged installation was on the
+other machine); CaDiCaL 3.0.1 is locally available for cross-validation.
