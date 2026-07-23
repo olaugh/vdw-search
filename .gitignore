@@ -9,3 +9,5 @@ sls
 runs/
 *.out
 *.tmp
+cnf_cyclic
+cnf_linear
