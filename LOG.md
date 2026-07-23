@@ -194,3 +194,29 @@ runs/g*), LOG.md, and the Phase-2 generators. Shared contract:
   kissat (see cnf_linear.c polarity trick); (c) LOCAL perturbation
   around the violated constraint, not uniform; (d) exhaustive 2-3 flip
   probe near it — no local fix = dead basin, stop massaging.
+
+## 2026-07-23 — *** RECORD: W(7,3) > 344 ***
+
+- Phase-seeded kissat (basin: v2b_344_4_r1, best_nv=1) returned SAT;
+  decoded model VERIFIED by verifier.c: certs/RECORD_W7_3_gt344.txt.
+  Beats Komkov v5 (>343). Escape analysis: 25 flips from the seed,
+  spread across the interval, wall element 344 recolored — a globally
+  coordinated move SLS couldn't assemble (matches the ball-closure
+  logic from the orchestrator: solution far outside small Hamming balls
+  of the stalled basin).
+- Method note for both agents: SLS-to-best_nv=1 THEN phase-seeded CDCL
+  is the pipeline. Neither half suffices alone.
+- Moot n=344 lanes killed; n=345 launched (kissat + 2 ILS chains seeded
+  from the new record). Cyclic m=259/261 DDFW still running.
+- Announce protocol: literature re-sweep before any external claim.
+
+### Relay to M5 (orchestrator allocation for T2 — your lane):
+- Option 1 (deeper K ball closure): CAP — one overnight K=11/12 batch on
+  idle cores, then close; write out the palindrome-reflection argument
+  in your LOG. Option 2 (~25-30%): pivot the exactness lane DOWN to the
+  smallest unproven t: cube-and-conquer UNSAT at n=390 for t=20, then
+  climb; either outcome is a result. Check literature first that no
+  post-2014 exactness proofs exist for t>=20. Option 3 (majority):
+  attack t=36..39 (not 32,33) with the endgame machinery.
+- NEW METHOD from T4's record (use it): SLS to best_nv=1, bank states,
+  then phase-seeded kissat on the full instance (see cnf_linear.c).
