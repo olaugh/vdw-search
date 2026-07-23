@@ -653,3 +653,24 @@ At t=33, the original color-2 endpoint remained valid without repair:
 `ddcb28d7aec8a88ca572f1da9cfcd3ffa78fff59463a7e7b09332c9069e29bcf`.
 This is six points beyond the AKS appendix bound. Raw ignored probes:
 `runs/t2-t32-33-climb6-20260723-m5/`.
+
+### Direct climb closes for t=33
+
+At t=33,n=1070, all four original/reversed × endpoint-color cases retained
+at least one violation after the zero/one-flip probe. The cheap direct climb
+therefore closes at `w(2;3,33) > 1069`. Raw ignored probes:
+`runs/t2-t33-climb7-20260723-m5/`.
+
+### Design: full phase-seeded Kissat lane for banked T2 states
+
+The next phase applies the T4 record pipeline without changing the T4
+searcher: add a separate T2-only DIMACS emitter for the implicit negative
+3-AP clauses and positive t-AP clauses. A supplied T2 bank/certificate will
+set every primary variable's preferred Kissat phase using the same
+polarity-flip encoding principle as `cnf_linear.c`; the logical assignment
+and frozen-verifier certificate convention remain unchanged. With no seed,
+the emitter will use one safe reflection lex-leader clause chain consistent
+with `t2_cadical.c`. First validate emitted SAT models against the frozen
+verifier on small solved instances and current certificates, then run the
+full phase-seeded solver on the high-priority banked best=1 t=37/t=38 states.
+Every SAT model is only a candidate until the frozen verifier accepts it.
