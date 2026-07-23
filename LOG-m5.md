@@ -523,3 +523,20 @@ lower bound only after frozen-verifier acceptance, while UNSAT closes only
 that bank/window. Validate generated windows against exhaustive small
 enumeration and retain all unrestricted regressions before applying radii to
 the t=37/t=38 best=1 banks.
+
+### Window-CDCL implementation checkpoint
+
+`t2_cadical --window R` independently enumerates seed violations, frees the
+union of radius-R index neighborhoods around their progression elements, and
+fixes every other primary variable with a unit clause.
+
+Validation before real use:
+
+- 48 exhaustive small cases over eight generated seeds, n=5..8, t=3/4,
+  left/right alignment, and radii 0..2 exactly matched brute-force restricted
+  SAT/UNSAT;
+- every SAT model passed the frozen verifier and changed no fixed variable;
+- all 44 unrestricted reflection-on/off frontier regressions retained their
+  verdicts, with every SAT model verifier-accepted;
+- ASan/UBSan passed a best=1 radius-1 window solve and correctly reported one
+  independent seed violation and 12 free variables.

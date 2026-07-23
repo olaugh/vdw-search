@@ -14,7 +14,8 @@
  * Usage:
  *   t2_cadical -n N -t T -o CANDIDATE [-i seed-cert] [-l seconds]
  *               [--no-reflection | --palindrome] [--seed-right]
- *               [--hamming K] [--solver-seed N] [--force-phase] [--stats]
+ *               [--hamming K | --window R] [--solver-seed N]
+ *               [--force-phase] [--stats]
  *
  * Exit 0: SAT candidate written.
  * Exit 1: UNSAT.
@@ -52,6 +53,17 @@ static void die(const char *message) {
 static void *xmalloc(size_t bytes) {
   void *p = malloc(bytes);
   if (p == NULL && bytes != 0) {
+    die("out of memory");
+  }
+  return p;
+}
+
+static void *xcalloc(size_t count, size_t bytes) {
+  if (bytes != 0 && count > SIZE_MAX / bytes) {
+    die("allocation size overflow");
+  }
+  void *p = calloc(count, bytes);
+  if (p == NULL && count != 0 && bytes != 0) {
     die("out of memory");
   }
   return p;
@@ -239,6 +251,75 @@ static void add_hamming_at_most(CCaDiCaL *solver, EncodingStats *stats,
 #undef COUNTER
 }
 
+static void mark_window(unsigned char *free_variables, int n, int element,
+                        int radius) {
+  int first = element - radius;
+  int last = element + radius;
+  if (first < 1) {
+    first = 1;
+  }
+  if (last > n) {
+    last = n;
+  }
+  for (int variable = first; variable <= last; variable++) {
+    free_variables[variable] = 1;
+  }
+}
+
+/* Independently find every progression violated by the supplied seed and
+ * leave only radius-neighborhoods of those progression elements unfixed.
+ * This is a search streamliner: UNSAT closes only this seed/window.
+ */
+static void add_violation_window(CCaDiCaL *solver, EncodingStats *stats,
+                                 const signed char *phases, int n, int t,
+                                 int radius, int *seed_violations,
+                                 int *free_count) {
+  unsigned char *free_variables =
+      xcalloc((size_t)(n + 1), sizeof(*free_variables));
+  *seed_violations = 0;
+
+  for (int diff = 1; 2LL * diff < n; diff++) {
+    for (int start = 1; start + 2 * diff <= n; start++) {
+      if (phases[start] > 0 && phases[start + diff] > 0 &&
+          phases[start + 2 * diff] > 0) {
+        (*seed_violations)++;
+        for (int j = 0; j < 3; j++) {
+          mark_window(free_variables, n, start + j * diff, radius);
+        }
+      }
+    }
+  }
+  const int span = t - 1;
+  for (int diff = 1; (long long)span * diff < n; diff++) {
+    for (int start = 1; start + span * diff <= n; start++) {
+      bool all_false = true;
+      for (int j = 0; j < t; j++) {
+        if (phases[start + j * diff] > 0) {
+          all_false = false;
+          break;
+        }
+      }
+      if (all_false) {
+        (*seed_violations)++;
+        for (int j = 0; j < t; j++) {
+          mark_window(free_variables, n, start + j * diff, radius);
+        }
+      }
+    }
+  }
+
+  *free_count = 0;
+  for (int variable = 1; variable <= n; variable++) {
+    if (free_variables[variable]) {
+      (*free_count)++;
+    } else {
+      const int unit[1] = {phases[variable] > 0 ? variable : -variable};
+      add_clause(solver, stats, unit, 1);
+    }
+  }
+  free(free_variables);
+}
+
 static int seed_next_int(FILE *file, long long *out) {
   int ch;
   for (;;) {
@@ -348,6 +429,8 @@ static int write_candidate(CCaDiCaL *solver, const char *path, int n, int t,
                            bool reflection, bool palindrome,
                            const char *seed_path, int seed_length,
                            bool seed_right, int hamming_limit,
+                           int window_radius, int window_seed_violations,
+                           int window_free_count,
                            long long solver_seed, bool force_phase,
                            const EncodingStats *stats) {
   FILE *file = fopen(path, "w");
@@ -358,10 +441,12 @@ static int write_candidate(CCaDiCaL *solver, const char *path, int n, int t,
   fprintf(file,
           "# UNVERIFIED t2_cadical candidate: n=%d t=%d reflection=%d "
           "palindrome=%d seed=%s seed_length=%d seed_right=%d hamming=%d "
-          "solver_seed=%lld force_phase=%d variables=%d clauses=%lld\n",
+          "window=%d seed_violations=%d window_free=%d solver_seed=%lld "
+          "force_phase=%d variables=%d clauses=%lld\n",
           n, t, reflection ? 1 : 0, palindrome ? 1 : 0,
           seed_path != NULL ? seed_path : "-", seed_length,
-          seed_right ? 1 : 0, hamming_limit, solver_seed,
+          seed_right ? 1 : 0, hamming_limit, window_radius,
+          window_seed_violations, window_free_count, solver_seed,
           force_phase ? 1 : 0, stats->variables, (long long)stats->clauses);
   fprintf(file, "2\n3 %d\n%d\n", t, n);
   for (int variable = 1; variable <= n; variable++) {
@@ -380,7 +465,8 @@ static void print_usage(const char *program) {
   fprintf(stderr,
           "usage: %s -n N -t T -o CANDIDATE [-i seed-cert] [-l seconds]\n"
           "       [--no-reflection | --palindrome] [--seed-right]\n"
-          "       [--hamming K] [--solver-seed N] [--force-phase] [--stats]\n",
+          "       [--hamming K | --window R] [--solver-seed N]\n"
+          "       [--force-phase] [--stats]\n",
           program);
 }
 
@@ -396,6 +482,7 @@ int main(int argc, char **argv) {
   bool print_stats = false;
   bool force_phase = false;
   long long hamming_limit = -1;
+  long long window_radius = -1;
   long long solver_seed = -1;
 
   for (int i = 1; i < argc; i++) {
@@ -418,6 +505,8 @@ int main(int argc, char **argv) {
       seed_right = true;
     } else if (strcmp(argv[i], "--hamming") == 0 && i + 1 < argc) {
       hamming_limit = parse_ll(argv[++i], "Hamming limit");
+    } else if (strcmp(argv[i], "--window") == 0 && i + 1 < argc) {
+      window_radius = parse_ll(argv[++i], "window radius");
     } else if (strcmp(argv[i], "--solver-seed") == 0 && i + 1 < argc) {
       solver_seed = parse_ll(argv[++i], "solver seed");
     } else if (strcmp(argv[i], "--force-phase") == 0) {
@@ -431,8 +520,11 @@ int main(int argc, char **argv) {
   }
   if (n < 3 || t < 3 || t > n || output_path == NULL || time_limit < 0 ||
       hamming_limit > INT_MAX || hamming_limit < -1 ||
+      window_radius > INT_MAX || window_radius < -1 ||
+      (hamming_limit >= 0 && window_radius >= 0) ||
       solver_seed < -1 || solver_seed > 2000000000LL ||
-      ((seed_right || hamming_limit >= 0) && seed_path == NULL)) {
+      ((seed_right || hamming_limit >= 0 || window_radius >= 0) &&
+       seed_path == NULL)) {
     print_usage(argv[0]);
     return 2;
   }
@@ -470,6 +562,12 @@ int main(int argc, char **argv) {
   if (hamming_limit >= 0) {
     add_hamming_at_most(solver, &stats, phases, n, (int)hamming_limit);
   }
+  int window_seed_violations = -1;
+  int window_free_count = -1;
+  if (window_radius >= 0) {
+    add_violation_window(solver, &stats, phases, n, t, (int)window_radius,
+                         &window_seed_violations, &window_free_count);
+  }
   free(phases);
 
   TerminationState termination = {
@@ -484,11 +582,12 @@ int main(int argc, char **argv) {
   fprintf(stderr,
           "solve: n=%d t=%d variables=%d auxiliaries=%d clauses=%lld "
           "literals=%lld reflection=%d palindrome=%d seed_length=%d "
-          "seed_right=%d hamming=%lld solver_seed=%lld force_phase=%d "
-          "cadical=%s\n",
+          "seed_right=%d hamming=%lld window=%lld seed_violations=%d "
+          "window_free=%d solver_seed=%lld force_phase=%d cadical=%s\n",
           n, t, stats.variables, stats.auxiliaries, (long long)stats.clauses,
           (long long)stats.literals, reflection ? 1 : 0, palindrome ? 1 : 0,
-          seed_length, seed_right ? 1 : 0, hamming_limit, solver_seed,
+          seed_length, seed_right ? 1 : 0, hamming_limit, window_radius,
+          window_seed_violations, window_free_count, solver_seed,
           force_phase ? 1 : 0, ccadical_signature());
   const double started = monotonic_seconds();
   const int result = ccadical_solve(solver);
@@ -501,8 +600,9 @@ int main(int argc, char **argv) {
   if (result == 10) {
     exit_code = write_candidate(solver, output_path, n, t, reflection,
                                 palindrome, seed_path, seed_length, seed_right,
-                                (int)hamming_limit, solver_seed, force_phase,
-                                &stats);
+                                (int)hamming_limit, (int)window_radius,
+                                window_seed_violations, window_free_count,
+                                solver_seed, force_phase, &stats);
     fprintf(stderr,
             "SAT n=%d t=%d seconds=%.6f path=%s (MUST RUN verifier.c)\n", n,
             t, elapsed, output_path);
