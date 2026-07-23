@@ -156,3 +156,41 @@ runs/g*), LOG.md, and the Phase-2 generators. Shared contract:
 - v2 wave: 6 ILS chains at n=344 (run -> save best -> reseed best -P 2,
   6 rounds x 150M flips), 4 cyclic repairs at m=259/261 continuing.
   v2 smoke hit best_nv=1 within 20M flips.
+
+## 2026-07-23 — Parity map, the (2,171) wall, and phase-seeded CDCL
+
+- W(10,3)>892 transcribed from Komkov PDF, VERIFIED first try. Autocorr:
+  92.9% at shift 444 (composite, like 255) -> parity map now 3/3 direct
+  (r=7 unstructured; r=8, r=10 near-cyclic) + Fable's W(4,3)/W(5,3) exact
+  data. New ladder: W(10,3) 444-core -> odd m=447 -> 895 > 892.
+- Rabung-p=257 hypothesis TESTED AND DEAD: canonical coset coloring of
+  Z_257 fails immediately (adjacent same-coset residues); 515=2*257+1 was
+  numerology. Komkov's near-period is 255 (composite) — already in the
+  unswept space.
+- THE (2,171) WALL: every best_nv=1 state across all W(7,3) n=344 chains
+  and rounds has the SAME violated AP: elements {2,173,344} (a=2, d=171,
+  the near-full-interval progression). Structure, not noise.
+- CDCL: vanilla kissat cannot decide even known-SAT n=343 in 10 min.
+  PHASE SEEDING (polarity-flipped encoding so default phase = seed) took
+  seeded n=343 from >10min to <1s. Three phase-seeded kissat runs now
+  deciding n=344 from the Komkov cert + two distinct best=1 basins.
+  SAT -> W(7,3) > 344 record; a future full UNSAT proof would give
+  W(7,3) = 344 exactly (needs cube-and-conquer + symmetry breaking).
+- cnf_linear.c (+ first-occurrence SB when unseeded), cnf_cyclic.c,
+  decode_model.py added. Z_255 cyclic core promoted to certs/ as a
+  first-class reusable artifact.
+
+### Relay to M5 (from Orchestrator, T2 budget policy — your lane):
+- Stopping rule budgets a METHOD, not a target: method changed (ILS +
+  window-CDCL now exist) -> fresh budget at ~50% of original for the
+  upgraded attack on banked best=1 states only.
+- t=31 is the WORST T2 target (adjacent to AKS's conjectured-exact
+  region t<=30; the stall is consistent with genuine tightness).
+  Reorder: attack t=36..39 next, not t=32,33.
+- Endgame toolkit for best=1 stalls (validated here: it found our
+  (2,171) wall): (a) bank+canonicalize+diff best states — recurring
+  violated constraint = structure; (b) window-CDCL: freeze all but
+  ~50-100 elements around the violated constraint via phase-seeded
+  kissat (see cnf_linear.c polarity trick); (c) LOCAL perturbation
+  around the violated constraint, not uniform; (d) exhaustive 2-3 flip
+  probe near it — no local fix = dead basin, stop massaging.
