@@ -123,3 +123,21 @@ runs/g*), LOG.md, and the Phase-2 generators. Shared contract:
 - Push discipline: pull --rebase on rejection, re-verify nothing of ours
   was clobbered, push again. NEVER force-push on this repo.
 - certs/ is append-only; every cert names its producer in the '#' header.
+
+## 2026-07-23 — Cyclic ansatz: W(8,3) structural finding + pipeline proof
+
+- Structure-mined Komkov's W(8,3)>515 cert: 93.5% agreement under shift
+  255; majority-vote period-255 core was ONE FLIP from a perfectly cyclic
+  Z_255 8-coloring (sls -C). Also: 515 = 2*257+1 exactly — the Herwig
+  repetitive-cyclic shape.
+- sls.c gained -C (cyclic over Z_m, odd m required: even m adds hidden
+  d=m/2 pair constraints; unroll to 2m+1 needs a free last element to
+  break the (1, m+1, 2m+1) degenerate AP).
+- END-TO-END PROOF: cyclic Z_255 core unrolled, last=3, verifier ACCEPTS
+  -> certs/W8_3_gt511_cyclic_m255.txt. NOT a record (511 < 515, stated
+  plainly) — pipeline validation only.
+- Record attack ladder: cyclic m=259 -> 519 (> 515), m=261 -> 523.
+  4 repair runs launched (end-pad + spread-insert seeds, 286-violation
+  start). Open question (escalating to Fable): are Komkov's 6.5%
+  mutations load-bearing, i.e. is cyclic m>=259 UNSAT?
+- kissat 4.0.4 installed (approved).

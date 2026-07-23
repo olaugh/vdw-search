@@ -41,9 +41,18 @@ static int *adj, *adj_start;  /* CSR: element -> AP indices */
 static int *vlist, *vpos, nv; /* violated APs, position index */
 static long long *tabu_until; /* per-element tabu expiry (flip count) */
 
+static int cyclic_mode;
+static int wrap(int x) {
+  if (!cyclic_mode) {
+    return x;
+  }
+  int m = n;
+  x = (x - 1) % m;
+  return x + 1;
+}
 static int ap_violated(int i) {
   int a = ap_a[i], d = ap_d[i];
-  return col[a] == col[a + d] && col[a] == col[a + 2 * d];
+  return col[a] == col[wrap(a + d)] && col[a] == col[wrap(a + 2 * d)];
 }
 
 static void v_add(int i) {
@@ -99,7 +108,7 @@ int main(int argc, char **argv) {
   long long maxflips = 200000000LL;
   unsigned long long seed = 12345;
   const char *mode = "ddfw", *seedfile = NULL, *outfile = NULL;
-  int perturb_pct = 0, reverse_seed = 0;
+  int perturb_pct = 0, reverse_seed = 0, cyclic = 0;
   n = 0;
   r = 0;
   for (int i = 1; i < argc; i++) {
@@ -119,6 +128,8 @@ int main(int argc, char **argv) {
       perturb_pct = atoi(argv[++i]);
     } else if (!strcmp(argv[i], "-R")) {
       reverse_seed = 1;
+    } else if (!strcmp(argv[i], "-C")) {
+      cyclic = 1;
     } else if (!strcmp(argv[i], "-o")) {
       outfile = argv[++i];
     } else {
@@ -130,7 +141,12 @@ int main(int argc, char **argv) {
     fprintf(stderr, "need -n>=3 -r in [2,32] -o outfile\n");
     return 2;
   }
+  if (cyclic && n % 2 == 0) {
+    fprintf(stderr, "cyclic mode requires odd n (see unroll analysis)\n");
+    return 2;
+  }
   int ddfw = !strcmp(mode, "ddfw");
+  cyclic_mode = cyclic;
   rng_state = seed * 2654435761ULL + 1;
 
   /* ---- initial coloring: cold random, optionally overlaid by a seed ---- */
@@ -192,26 +208,41 @@ int main(int argc, char **argv) {
 
   /* ---- enumerate APs and build CSR adjacency ---- */
   nap = 0;
-  for (int d = 1; 2 * d < n; d++) {
-    nap += n - 2 * d;
+  if (cyclic) {
+    nap = n * ((n - 1) / 2);
+  } else {
+    for (int d = 1; 2 * d < n; d++) {
+      nap += n - 2 * d;
+    }
   }
   ap_a = malloc((size_t)nap * sizeof(int));
   ap_d = malloc((size_t)nap * sizeof(int));
   w = malloc((size_t)nap * sizeof(int));
   int idx = 0;
-  for (int d = 1; 2 * d < n; d++) {
-    for (int a = 1; a + 2 * d <= n; a++) {
-      ap_a[idx] = a;
-      ap_d[idx] = d;
-      w[idx] = 8;
-      idx++;
+  if (cyclic) {
+    for (int d = 1; d <= (n - 1) / 2; d++) {
+      for (int a = 1; a <= n; a++) {
+        ap_a[idx] = a;
+        ap_d[idx] = d;
+        w[idx] = 8;
+        idx++;
+      }
+    }
+  } else {
+    for (int d = 1; 2 * d < n; d++) {
+      for (int a = 1; a + 2 * d <= n; a++) {
+        ap_a[idx] = a;
+        ap_d[idx] = d;
+        w[idx] = 8;
+        idx++;
+      }
     }
   }
   adj_start = calloc((size_t)(n + 2), sizeof(int));
   for (int i = 0; i < nap; i++) {
     adj_start[ap_a[i] + 1]++;
-    adj_start[ap_a[i] + ap_d[i] + 1]++;
-    adj_start[ap_a[i] + 2 * ap_d[i] + 1]++;
+    adj_start[wrap(ap_a[i] + ap_d[i]) + 1]++;
+    adj_start[wrap(ap_a[i] + 2 * ap_d[i]) + 1]++;
   }
   for (int e = 1; e <= n + 1; e++) {
     adj_start[e] += adj_start[e - 1];
@@ -221,8 +252,8 @@ int main(int argc, char **argv) {
   memcpy(fill, adj_start, (size_t)(n + 2) * sizeof(int));
   for (int i = 0; i < nap; i++) {
     adj[fill[ap_a[i]]++] = i;
-    adj[fill[ap_a[i] + ap_d[i]]++] = i;
-    adj[fill[ap_a[i] + 2 * ap_d[i]]++] = i;
+    adj[fill[wrap(ap_a[i] + ap_d[i])]++] = i;
+    adj[fill[wrap(ap_a[i] + 2 * ap_d[i])]++] = i;
   }
   free(fill);
 
@@ -255,7 +286,8 @@ int main(int argc, char **argv) {
         }
       }
     }
-    int elems[3] = {ap_a[ap], ap_a[ap] + ap_d[ap], ap_a[ap] + 2 * ap_d[ap]};
+    int elems[3] = {ap_a[ap], wrap(ap_a[ap] + ap_d[ap]),
+                    wrap(ap_a[ap] + 2 * ap_d[ap])};
     int be = -1, bc = -1;
     long long bd = 0;
     if ((double)rng_below(1000000) / 1e6 < noise) {
@@ -338,8 +370,9 @@ int main(int argc, char **argv) {
 
   if (nv == 0) {
     FILE *f = fopen(outfile, "w");
-    fprintf(f, "# sls certificate: n=%d r=%d mode=%s rngseed=%llu flips=%lld"
+    fprintf(f, "# sls %s: n=%d r=%d mode=%s rngseed=%llu flips=%lld"
                " seed=%s P=%d R=%d\n",
+            cyclic ? "CYCLIC-CORE (unroll before verifying)" : "certificate",
             n, r, mode, seed, flips, seedfile ? seedfile : "-", perturb_pct,
             reverse_seed);
     fprintf(f, "%d\n", r);
