@@ -159,3 +159,20 @@ Validation:
 3. verify every SAT model separately with frozen `verifier.c`;
 4. confirm the seed only changes phases, never clauses, by comparing clause
    counts and verdicts with/without `-i`.
+
+### Phase M5-3 implementation checkpoint
+
+- Installed Homebrew CaDiCaL 3.0.1 and added plain-C `t2_cadical.c` using
+  `ccadical.h`; the final link uses CaDiCaL's static C++ library.
+- Ordinary mode defaults to the reflection lex leader. `--no-reflection`
+  removes it; `--palindrome` is a separate equality-streamlined instance.
+- Validated 44 cases covering every nontrivial n from t through the exact
+  w(2;3,3)=9 and w(2;3,4)=18 frontiers, with reflection both enabled and
+  disabled: 40 SAT models were independently accepted by `verifier.c`, and
+  all four boundary runs returned UNSAT.
+- A palindromic w(2;3,3)>8 regression model was verifier-accepted.
+- Seeded and unseeded n=17,t=4 encodings both reported the same 146 clauses;
+  the seed affects CaDiCaL phases only.
+- The termination callback returned UNKNOWN after 1.0004 seconds on the known
+  hard n=349,t=19 boundary instance.
+- Strict C11 compile and an ASan/UBSan seeded solve passed.
