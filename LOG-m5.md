@@ -420,3 +420,22 @@ nonzero states), then feed the complete coloring to unrestricted CaDiCaL as
 phases. Run the t=36..39 SLS-to-basin and phase-seeded CDCL pipeline under
 short explicit TTLs; only a full model accepted by `verifier.c` becomes a
 certificate.
+
+### Best-state banking implementation checkpoint
+
+`t2_sls -b PATH` now snapshots every new minimum and, on exhaustion, writes
+the best complete coloring with a prominent `NOT A CERTIFICATE` label. A
+fresh progression enumeration independent of the maintained counters must
+match the saved minimum before the file is written; all remaining 3-AP/t-AP
+violations are listed in comments.
+
+Validation:
+
+- on the exact n=18,t=4 UNSAT boundary, a best=1 bank was independently
+  counted as one violation, named its remaining 4-AP, and was rejected by the
+  frozen verifier as required;
+- CaDiCaL parsed that commented bank as phase input and retained the known
+  UNSAT verdict;
+- the ordinary zero-violation n=17,t=4 candidate path remained
+  verifier-accepted and did not emit a misleading best-state file;
+- built-in state self-test and ASan/UBSan bank/write/reject path passed.

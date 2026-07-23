@@ -17,6 +17,7 @@
  *          [-c random|seed|cyclic|palindrome|digit] [-i seed-cert]
  *          [-P perturb-percent] [-R] [-q template-parameter]
  *          [-D color1-density-percent] [-l seconds] [-p progress-flips]
+ *          [-b best-state]
  *   t2_sls --self-test
  *
  * Exit 0: maintained zero violations and candidate written.
@@ -333,30 +334,45 @@ static void apply_flip(Problem *problem, int element) {
 
 /* Independent from the maintained constraint counters: enumerate the two
  * progression families afresh from n, t, and the current bit vector. */
-static int brute_force_violation_count(const Problem *problem) {
+static int independently_count_violations(const unsigned char *bits, int n,
+                                          int t, FILE *details) {
   int count = 0;
-  for (int diff = 1; 2LL * diff < problem->n; diff++) {
-    for (int start = 1; start + 2 * diff <= problem->n; start++) {
-      if (problem->bits[start] && problem->bits[start + diff] &&
-          problem->bits[start + 2 * diff]) {
+  for (int diff = 1; 2LL * diff < n; diff++) {
+    for (int start = 1; start + 2 * diff <= n; start++) {
+      if (bits[start] && bits[start + diff] && bits[start + 2 * diff]) {
         count++;
+        if (details != NULL) {
+          fprintf(details, "# violated 3-AP: start=%d diff=%d\n", start,
+                  diff);
+        }
       }
     }
   }
-  const int span = problem->t - 1;
-  for (int diff = 1; (long long)span * diff < problem->n; diff++) {
-    for (int start = 1; start + span * diff <= problem->n; start++) {
+  const int span = t - 1;
+  for (int diff = 1; (long long)span * diff < n; diff++) {
+    for (int start = 1; start + span * diff <= n; start++) {
       bool all_zero = true;
-      for (int j = 0; j < problem->t; j++) {
-        if (problem->bits[start + j * diff]) {
+      for (int j = 0; j < t; j++) {
+        if (bits[start + j * diff]) {
           all_zero = false;
           break;
         }
       }
-      count += all_zero;
+      if (all_zero) {
+        count++;
+        if (details != NULL) {
+          fprintf(details, "# violated %d-AP: start=%d diff=%d\n", t, start,
+                  diff);
+        }
+      }
     }
   }
   return count;
+}
+
+static int brute_force_violation_count(const Problem *problem) {
+  return independently_count_violations(problem->bits, problem->n, problem->t,
+                                        NULL);
 }
 
 static void assert_problem_consistent(const Problem *problem) {
@@ -756,6 +772,53 @@ static int write_candidate(const Problem *problem, const char *path,
   return 0;
 }
 
+static int write_best_state(const Problem *problem,
+                            const unsigned char *best_bits, const char *path,
+                            const char *mode, StartClass start_class,
+                            uint64_t seed, long long best_flips,
+                            long long best_weight_updates,
+                            int maintained_violations, const char *seed_path,
+                            int perturb_percent, bool reverse_seed) {
+  const int independent_violations = independently_count_violations(
+      best_bits, problem->n, problem->t, NULL);
+  if (independent_violations != maintained_violations) {
+    fprintf(stderr,
+            "error: best-state violation mismatch: maintained=%d "
+            "independent=%d\n",
+            maintained_violations, independent_violations);
+    return 2;
+  }
+
+  FILE *file = fopen(path, "w");
+  if (file == NULL) {
+    fprintf(stderr, "error: cannot write best state %s\n", path);
+    return 2;
+  }
+  fprintf(file,
+          "# NOT A CERTIFICATE: t2_sls best state n=%d t=%d mode=%s "
+          "class=%s rngseed=%llu flips=%lld weight_updates=%lld seed=%s "
+          "P=%d R=%d maintained_violations=%d "
+          "independent_violations=%d\n",
+          problem->n, problem->t, mode, start_class_name(start_class),
+          (unsigned long long)seed, best_flips, best_weight_updates,
+          seed_path != NULL ? seed_path : "-", perturb_percent,
+          reverse_seed ? 1 : 0, maintained_violations,
+          independent_violations);
+  fprintf(file, "2\n3 %d\n%d\n", problem->t, problem->n);
+  for (int element = 1; element <= problem->n; element++) {
+    const int color = best_bits[element] ? 1 : 2;
+    fprintf(file, "%d%s", color,
+            element % 60 == 0 || element == problem->n ? "\n" : " ");
+  }
+  (void)independently_count_violations(best_bits, problem->n, problem->t,
+                                       file);
+  if (fclose(file) != 0) {
+    fprintf(stderr, "error: failed closing best state %s\n", path);
+    return 2;
+  }
+  return 0;
+}
+
 static void print_usage(const char *program) {
   fprintf(stderr,
           "usage: %s -n N -t T -m walksat|ddfw -f MAXFLIPS -s SEED "
@@ -763,7 +826,7 @@ static void print_usage(const char *program) {
           "       [-c random|seed|cyclic|palindrome|digit] [-i seed-cert]\n"
           "       [-P perturb-percent] [-R] [-q template-parameter]\n"
           "       [-D color1-density-percent] [-l seconds] "
-          "[-p progress-flips]\n"
+          "[-p progress-flips] [-b best-state]\n"
           "       %s --self-test\n",
           program, program);
 }
@@ -782,6 +845,7 @@ int main(int argc, char **argv) {
   const char *start_name = "random";
   const char *seed_path = NULL;
   const char *output_path = NULL;
+  const char *best_output_path = NULL;
   int perturb_percent = 0;
   int density_percent = 20;
   int template_parameter = 0;
@@ -818,6 +882,8 @@ int main(int argc, char **argv) {
       progress_interval = parse_ll(argv[++i], "progress interval");
     } else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
       output_path = argv[++i];
+    } else if (strcmp(argv[i], "-b") == 0 && i + 1 < argc) {
+      best_output_path = argv[++i];
     } else {
       print_usage(argv[0]);
       return 2;
@@ -843,6 +909,13 @@ int main(int argc, char **argv) {
   initialize_bits(&problem, start_class, density_percent, template_parameter,
                   seed_path, reverse_seed, perturb_percent);
   int best_violations = problem.num_violated;
+  unsigned char *best_bits = NULL;
+  if (best_output_path != NULL) {
+    best_bits = xmalloc((size_t)(n + 1));
+    memcpy(best_bits + 1, problem.bits + 1, (size_t)n);
+  }
+  long long best_flips = 0;
+  long long best_weight_updates = 0;
   long long last_improvement = 0;
   long long flips = 0;
   long long weight_updates = 0;
@@ -907,6 +980,11 @@ int main(int argc, char **argv) {
 
     if (problem.num_violated < best_violations) {
       best_violations = problem.num_violated;
+      if (best_bits != NULL) {
+        memcpy(best_bits + 1, problem.bits + 1, (size_t)n);
+      }
+      best_flips = flips;
+      best_weight_updates = weight_updates;
       last_improvement = flips;
       noise = 0.25 + (noise - 0.25) * 0.5;
       fprintf(stderr,
@@ -940,15 +1018,30 @@ int main(int argc, char **argv) {
             "CANDIDATE n=%d t=%d flips=%lld weight_updates=%lld "
             "seconds=%.3f path=%s (MUST RUN verifier.c)\n",
             n, t, flips, weight_updates, elapsed, output_path);
+    free(best_bits);
     problem_destroy(&problem);
     return status;
   }
 
+  int best_status = 0;
+  if (best_output_path != NULL) {
+    best_status = write_best_state(
+        &problem, best_bits, best_output_path, mode, start_class, seed,
+        best_flips, best_weight_updates, best_violations, seed_path,
+        perturb_percent, reverse_seed);
+    if (best_status == 0) {
+      fprintf(stderr,
+              "BEST_STATE n=%d t=%d best=%d flips=%lld path=%s "
+              "(NOT A CERTIFICATE)\n",
+              n, t, best_violations, best_flips, best_output_path);
+    }
+  }
   fprintf(stderr,
           "exhausted: n=%d t=%d flips=%lld best=%d final=%d "
           "weight_updates=%lld seconds=%.3f%s\n",
           n, t, flips, best_violations, problem.num_violated, weight_updates,
           elapsed, timed_out ? " timed_out" : "");
+  free(best_bits);
   problem_destroy(&problem);
-  return 1;
+  return best_status == 0 ? 1 : best_status;
 }
