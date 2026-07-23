@@ -495,3 +495,31 @@ length immediately found zero-flip color-2 extensions of the new certificates:
 Both were accepted by the frozen standalone verifier before tracking. This
 places each current project bound two points beyond its AKS appendix bound.
 Raw ignored probes: `runs/t2-climb-endpoints-20260723-m5/`.
+
+### Full-instance best=1 CDCL result
+
+Eighteen 120-second CaDiCaL lanes used independently checked best=1 phase
+states: all four endpoint-color/orientation basins for t=37 and t=38, plus
+the next-length n=1260 and n=1421 basins for t=36 and t=39. Ordinary and
+forced phasing were both represented. All 18 returned UNKNOWN; no candidate
+was emitted and no result is claimed. No residual workers remained. Raw
+ignored logs: `runs/t2-best1-cdcl-b1-20260723-m5/`.
+
+## 2026-07-23 — Phase M5-8 design: violated-progression window CDCL
+
+Add an optional CaDiCaL streamliner for a complete seed/banked state:
+
+1. independently enumerate the seed's 3-AP and t-AP violations;
+2. mark every element of each violated progression, plus an index radius R
+   around each such element, as free;
+3. add unit clauses fixing every other primary variable to the seed.
+
+For a single violated long AP, R=0 frees t elements and R=1 frees at most 3t
+elements, matching the relay's roughly 50–100-element local window. Report
+the independently counted seed violations and actual free-variable count.
+
+This is an unsafe search restriction: a SAT model proves the unrestricted
+lower bound only after frozen-verifier acceptance, while UNSAT closes only
+that bank/window. Validate generated windows against exhaustive small
+enumeration and retain all unrestricted regressions before applying radii to
+the t=37/t=38 best=1 banks.
