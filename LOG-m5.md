@@ -125,3 +125,37 @@ standalone verifier:
 
 This completes the requested AKS seed recovery for t=31..39. These are
 reproductions of published lower bounds, not improvements.
+
+## 2026-07-23 — Phase M5-3 design: CaDiCaL API lane
+
+Add a separate T2 CDCL generator, leaving the verifier and M2/T4 sources
+untouched. Use Boolean `x_i=1` for the color avoiding 3-APs:
+
+- every 3-AP contributes `(-x_a OR -x_b OR -x_c)`;
+- every t-AP contributes `(x_a OR ... OR x_z)`.
+
+Initialize CaDiCaL phases from a verifier-format AKS seed, extending beyond the
+seed with a deterministic default. A SAT model is written only as an
+`UNVERIFIED` complete certificate and must pass the standalone verifier before
+tracking or reporting.
+
+The ordinary/base instance may add the safe reflection lex leader
+`x_1...x_n <=lex x_n...x_1`. Encode prefix equality with auxiliary variables
+and prohibit `(x_i,x_{n+1-i})=(1,0)` only while every earlier reflected pair is
+equal. Reflection is an automorphism of the interval/AP formula, so this keeps
+at least one representative from each reflection orbit.
+
+Palindromicity is a separate explicit mode adding
+`x_i = x_{n+1-i}`. It is a search streamliner, not a safe ordinary-instance
+symmetry break; any satisfying model still proves an ordinary lower bound only
+because the unrestricted standalone verifier accepts the resulting complete
+certificate.
+
+Validation:
+
+1. strict build against the installed CaDiCaL C API;
+2. compare SAT/UNSAT against brute force for every n through the small
+   w(2;3,3) and w(2;3,4) frontiers, with reflection on/off;
+3. verify every SAT model separately with frozen `verifier.c`;
+4. confirm the seed only changes phases, never clauses, by comparing clause
+   counts and verdicts with/without `-i`.
