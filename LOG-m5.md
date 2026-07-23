@@ -242,3 +242,27 @@ incremental-state self-test and frozen standalone verifier regressions. Compare
 fixed-work elapsed time against the existing release build before selecting the
 binary for the 18-lane n=931 batch; retain PGO only if the measurement supports
 it.
+
+### Native/PGO result
+
+Apple Clang 21 trained the instrumented binary on t=31 random DDFW, random
+focused-WalkSAT, and AKS-seeded DDFW workloads. The profile-use build passed
+the built-in 20,000-flip state self-test; its DDFW and WalkSAT w(2;3,4)>17
+candidates and the recovered AKS w(2;3,31)>930 certificate all passed the
+frozen standalone verifier.
+
+Three interleaved fixed-work rounds per mode (n=700, t=31, 100,000 flips)
+gave these median elapsed times:
+
+| build | DDFW | focused WalkSAT |
+|---|---:|---:|
+| existing release | 2.357 s | 1.690 s |
+| `-march=native` | 2.320 s | 1.761 s |
+| `-march=native` + PGO | 2.494 s | 1.865 s |
+
+Matched seeds produced identical best/final violation counts and weight-update
+counts in all builds. Native-only improves DDFW by about 1.6% in this small
+sample. The trained PGO build is 5.8% slower than release for DDFW and 10.4%
+slower for WalkSAT, so it is rejected rather than presumed beneficial. Use the
+native-only binary for DDFW lanes and the existing release binary for WalkSAT
+lanes in the first n=931 portfolio.
