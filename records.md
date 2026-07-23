@@ -70,9 +70,73 @@ paper is Ramsey numbers, not vdW.
   re-derived here — pin down before targeting (TODO if selected).
 - w(k; 2,...,2,s,t) family: Ahmed JIS 2013 Table 4 (exact, small n).
 
-## Target assessment
+## Corrections from external review (Fable) — verified against sources
 
-1. **T1 (marquee): W(2,7) > 3703** — current, and 47 years old. But honest
+1. **Komkov (arXiv:1701.05603 v5, Oct 2020)** — MISSED in first pass; now
+   verified from the PDF (certificates embedded in the paper):
+   W(7,3) > 343, W(8,3) > 515, W(10,3) > 892, W(11,3) > 1187,
+   W(17,3) > 3549 (all beating Heule 2017 "Avoiding Triples" by +1..+4),
+   plus W(7,4) > 9980, W(6,5) > 99554, W(5,6) > 540197 (beating his own
+   2018 GA bounds; last two certs at komkov.org/VanDerWaerden/).
+   Lone-author SAT+GA, hill-climb margins, small n: softest records found.
+2. **Zipper precondition (Herwig-Heule EJC 2007, §5, verified)**: the
+   Cyclic Zipper method's step 1 is "suppose a CYCLIC CERTIFICATE of
+   length n is found" — the base must already be valid. Consequence: for
+   W(2,7) the valid power-residue bases below 950M are fully known
+   (largest p=617, Monroe), all were zipped long ago, so a zip sweep of
+   primes 40M–950M is PROVABLY EMPTY for power-residue bases. T1(a) dead.
+   Live variant: the base may come from "any other technique" — zipping
+   SLS-found cyclic certificates is unexplored. Also (ibid.): zipping has
+   only ever produced records for EVEN r; bound formula (k−1)·p·2^z + 1.
+3. **Cost model corrected**: no O(p) discrete-log array needed — r=2
+   coloring is the quadratic character (Jacobi symbol, O(log p)/element);
+   general r via Euler's criterion t^((p−1)/r) mod p. Lazy prefix testing
+   ≈ microseconds/prime. And by multiplicativity, a mono AP of difference
+   d in Z_p normalizes to a RUN of k consecutive equal characters, so
+   expected violations grow ~ p·r^(1−k): valid primes thin out
+   exponentially — explaining why records come from tiny primes and the
+   950M sweep found nothing at k=7.
+4. **Ceiling folklore retracted**: my "3400–4500" band contradicted its
+   own data (3703/1132 ≈ 3.27 > 2.7). No reliable ceiling estimate exists.
+5. **Blankenship–Cummings–Taranchuk (EJC 69, 2018)**: W(k,r) >
+   p·(W(k, r−⌈r/p⌉) − 1) for prime p ≤ k — generalizes Berlekamp; feeds
+   several multicolor entries (used in Monroe Tables 1–3).
+6. **Asymptotic context** (audience value for T2): Green (FoM Pi 2022)
+   refuted AKS's w(3,k)=O(k²) conjecture (w(3,k) ≥ k^{b(k)}, b→∞);
+   Hunter (2111.01099) improved b(k); arXiv:2606.02541 (June 2026)
+   claims super-exponential growth for THREE-color w(3;k,k,k) — skim
+   before publishing anything in that family.
+7. **AlphaEvolve/FunSearch collision check**: no published vdW-type
+   sweep found (cap sets, kissing numbers, etc. — not vdW). Re-verify
+   against Tao's Nov 2025 "at scale" problem list before M5 Max commit.
+8. **r=5,6 columns need an audit**: Herwig 2007 Table 3/4 entries
+   (e.g. W(6,6) > 633981, zipped p=31699) may still be current and soft;
+   Komkov superseded W(6,5). Cross-check against BCT/Xu recursions and
+   OEIS before targeting.
+
+## Target assessment (REVISED after review)
+
+Priority order: **T2 heaviest, T4 (new) as second banker, T3, T1 reduced.**
+
+- **T2 (banker #1): w(2;3,t), t=31..39** — unchanged, strengthened by
+  Green/Hunter/2606.02541 (the tightness conjecture's foundation is gone).
+- **T4 (banker #2, added): the Komkov family** — W(7,3) > 343,
+  W(8,3) > 515, W(10,3) > 892, W(11,3) > 1187, W(17,3) > 3549, and his
+  W(7,4)/W(6,5)/W(5,6). 2020 SAT/GA margins of +1..+4 on small n; also
+  W(6,6) > 633981 (Herwig 2007) pending the r=5,6 audit.
+- **T3: W(3,7) > 48811** — direct focused-walk SLS at n≈49k, seeded from
+  the existing certificate and character constructions; palindromic /
+  cyclic restart classes (sound for lower bounds; Herwig: certificates
+  show strong symmetry regularities).
+- **T1 (reduced, ~10%): W(2,7) > 3703** — (a) zip sweep DEAD (see
+  corrections); survives: systematic multi-zips of small valid bases,
+  zips of SLS-found cyclic bases (even-r caveat noted), and SLS repair at
+  n=3704–3800 seeded from the p=617 coloring — which doubles as evidence
+  about the true ceiling that no ratio heuristic provides.
+
+Original T1 notes kept below for the record:
+
+1. **T1 (old marquee): W(2,7) > 3703** — current, and 47 years old. But honest
    odds assessment: pure Rabung exhausted to 950M; growth-ratio evidence
    (Monroe Fig. 1: consecutive-k LB ratios oscillate 2–2.7) puts plausible
    true W(2,7) around 3–4 × W(2,6)=1132, i.e. 3400–4500 — 3703 may be near

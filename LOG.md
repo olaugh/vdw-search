@@ -38,3 +38,23 @@ Next: Phase 1 — pin the frontier (records.md), verify W(2,7)>3703 currency.
   honest reasons given), T2 w(2;3,31..39) (softest), T3 W(3,7)>48811
   (2016-era SAT bound, SLS-rangeable). Also W(2,8) rides the zip gap.
 - STOPPED for Phase 1 review per protocol.
+
+## 2026-07-23 — Phase 1 revision after external review (Fable 5)
+
+Pasted Phase-1 summary to Fable; its critique verified claim-by-claim:
+- Komkov 1701.05603 v5 (2020) MISSED by our search: 8 soft records
+  (W(7,3)>343 ... W(5,6)>540197), certificates in the PDF. Added as T4.
+- Zipper precondition CONFIRMED from Herwig-Heule EJC 2007 §5: base must
+  be a valid cyclic certificate => zip sweep 40M..950M provably empty for
+  power-residue bases. T1(a) killed. Zip-of-SLS-cyclic-base noted as the
+  live Phase-4 variant; zipping only ever won for even r.
+- Cost model fixed: Jacobi/Euler lazy evaluation, run-normalization
+  (mono AP in Z_p <=> run of k consecutive equal characters) => valid
+  primes exponentially rare; Monroe's k=7 null result explained.
+- Ceiling argument retracted (self-contradictory ratio band).
+- BCT 2018 recurrence added; Green/Hunter + NEW arXiv:2606.02541 (June
+  2026, super-exponential 3-color growth) noted; AlphaEvolve/FunSearch
+  collision check: none found; r=5,6 columns flagged for audit.
+- REVISED portfolio: T2 (w(2;3,31..39)) heaviest, T4 Komkov family
+  (new banker), T3 W(3,7) SLS, T1 reduced to multi-zips + repair at 3704+.
+Phase 1 re-presented for approval.
