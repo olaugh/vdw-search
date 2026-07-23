@@ -566,3 +566,20 @@ workers remained. Raw ignored logs:
 `runs/t2-window-cdcl-b1-20260723-m5/`,
 `runs/t2-window-cdcl-b2-20260723-m5/`, and
 `runs/t2-window-cdcl-b3-20260723-m5/`.
+
+### Endpoint sweep fills t=32 and t=33
+
+The same finite original/reversed seed × endpoint-color sweep at each AKS
+bound plus one produced two more zero-flip extensions:
+
+- `certs/m5_w2_3_32_gt1007.txt`: frozen verifier
+  `VALID ... lengths=(3,32), n=1007`, SHA-256
+  `eae07d03332a8b6621e3274a75bcc73771a600acfba6e3c5aaa88b14605bb6de`;
+- `certs/m5_w2_3_33_gt1064.txt`: frozen verifier
+  `VALID ... lengths=(3,33), n=1064`, SHA-256
+  `084b8285e1983f4c8949798c3bc3dc55e622fa80ad04034240a7374ab24e5576`.
+
+No endpoint/one-flip candidate appeared for t=34,n=1144 or t=35,n=1205.
+The t=32 and t=33 certificates improve their AKS appendix bounds by one;
+literature re-sweep remains pending before an external record claim. Raw
+ignored probes: `runs/t2-t32-35-endpoints-20260723-m5/`.
