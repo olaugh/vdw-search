@@ -227,3 +227,18 @@ The current largest cold-solved n is 625 with observed solve cost 57.20 s.
 The literal 1000x stopping allowance is therefore about 15.9 hours. That is
 well over the one-hour approval threshold and is NOT authorized or scheduled.
 Initial n=931 batches remain short probes far below that budget.
+
+## 2026-07-23 — Phase M5-4a design: native and PGO search build
+
+Before spending the first n=931 portfolio, build the T2 SLS lane with
+`-O3 -march=native` and profile-guided optimization. Train the instrumented
+binary on representative t=31 DDFW, focused-WalkSAT, and AKS-seeded workloads,
+merge the profiles with `llvm-profdata`, and build with
+`-fprofile-instr-use`.
+
+PGO is a build-only search-speed optimization: it must not change the formula,
+candidate format, or verifier. Validate the resulting binary with the built-in
+incremental-state self-test and frozen standalone verifier regressions. Compare
+fixed-work elapsed time against the existing release build before selecting the
+binary for the 18-lane n=931 batch; retain PGO only if the measurement supports
+it.
