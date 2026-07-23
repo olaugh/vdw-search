@@ -14,7 +14,7 @@
  * Usage:
  *   t2_cadical -n N -t T -o CANDIDATE [-i seed-cert] [-l seconds]
  *               [--no-reflection | --palindrome] [--seed-right]
- *               [--hamming K] [--stats]
+ *               [--hamming K] [--solver-seed N] [--force-phase] [--stats]
  *
  * Exit 0: SAT candidate written.
  * Exit 1: UNSAT.
@@ -348,6 +348,7 @@ static int write_candidate(CCaDiCaL *solver, const char *path, int n, int t,
                            bool reflection, bool palindrome,
                            const char *seed_path, int seed_length,
                            bool seed_right, int hamming_limit,
+                           long long solver_seed, bool force_phase,
                            const EncodingStats *stats) {
   FILE *file = fopen(path, "w");
   if (file == NULL) {
@@ -357,11 +358,11 @@ static int write_candidate(CCaDiCaL *solver, const char *path, int n, int t,
   fprintf(file,
           "# UNVERIFIED t2_cadical candidate: n=%d t=%d reflection=%d "
           "palindrome=%d seed=%s seed_length=%d seed_right=%d hamming=%d "
-          "variables=%d clauses=%lld\n",
+          "solver_seed=%lld force_phase=%d variables=%d clauses=%lld\n",
           n, t, reflection ? 1 : 0, palindrome ? 1 : 0,
           seed_path != NULL ? seed_path : "-", seed_length,
-          seed_right ? 1 : 0, hamming_limit, stats->variables,
-          (long long)stats->clauses);
+          seed_right ? 1 : 0, hamming_limit, solver_seed,
+          force_phase ? 1 : 0, stats->variables, (long long)stats->clauses);
   fprintf(file, "2\n3 %d\n%d\n", t, n);
   for (int variable = 1; variable <= n; variable++) {
     const int color = ccadical_val(solver, variable) > 0 ? 1 : 2;
@@ -379,7 +380,7 @@ static void print_usage(const char *program) {
   fprintf(stderr,
           "usage: %s -n N -t T -o CANDIDATE [-i seed-cert] [-l seconds]\n"
           "       [--no-reflection | --palindrome] [--seed-right]\n"
-          "       [--hamming K] [--stats]\n",
+          "       [--hamming K] [--solver-seed N] [--force-phase] [--stats]\n",
           program);
 }
 
@@ -393,7 +394,9 @@ int main(int argc, char **argv) {
   bool palindrome = false;
   bool seed_right = false;
   bool print_stats = false;
+  bool force_phase = false;
   long long hamming_limit = -1;
+  long long solver_seed = -1;
 
   for (int i = 1; i < argc; i++) {
     if (strcmp(argv[i], "-n") == 0 && i + 1 < argc) {
@@ -415,6 +418,10 @@ int main(int argc, char **argv) {
       seed_right = true;
     } else if (strcmp(argv[i], "--hamming") == 0 && i + 1 < argc) {
       hamming_limit = parse_ll(argv[++i], "Hamming limit");
+    } else if (strcmp(argv[i], "--solver-seed") == 0 && i + 1 < argc) {
+      solver_seed = parse_ll(argv[++i], "solver seed");
+    } else if (strcmp(argv[i], "--force-phase") == 0) {
+      force_phase = true;
     } else if (strcmp(argv[i], "--stats") == 0) {
       print_stats = true;
     } else {
@@ -424,6 +431,7 @@ int main(int argc, char **argv) {
   }
   if (n < 3 || t < 3 || t > n || output_path == NULL || time_limit < 0 ||
       hamming_limit > INT_MAX || hamming_limit < -1 ||
+      solver_seed < -1 || solver_seed > 2000000000LL ||
       ((seed_right || hamming_limit >= 0) && seed_path == NULL)) {
     print_usage(argv[0]);
     return 2;
@@ -432,6 +440,12 @@ int main(int argc, char **argv) {
   CCaDiCaL *solver = ccadical_init();
   if (solver == NULL) {
     die("ccadical_init failed");
+  }
+  if (solver_seed >= 0) {
+    ccadical_set_option(solver, "seed", (int)solver_seed);
+  }
+  if (force_phase) {
+    ccadical_set_option(solver, "forcephase", 1);
   }
   EncodingStats stats = {
       .variables = n,
@@ -470,11 +484,12 @@ int main(int argc, char **argv) {
   fprintf(stderr,
           "solve: n=%d t=%d variables=%d auxiliaries=%d clauses=%lld "
           "literals=%lld reflection=%d palindrome=%d seed_length=%d "
-          "seed_right=%d hamming=%lld cadical=%s\n",
+          "seed_right=%d hamming=%lld solver_seed=%lld force_phase=%d "
+          "cadical=%s\n",
           n, t, stats.variables, stats.auxiliaries, (long long)stats.clauses,
           (long long)stats.literals, reflection ? 1 : 0, palindrome ? 1 : 0,
-          seed_length, seed_right ? 1 : 0, hamming_limit,
-          ccadical_signature());
+          seed_length, seed_right ? 1 : 0, hamming_limit, solver_seed,
+          force_phase ? 1 : 0, ccadical_signature());
   const double started = monotonic_seconds();
   const int result = ccadical_solve(solver);
   const double elapsed = monotonic_seconds() - started;
@@ -486,7 +501,8 @@ int main(int argc, char **argv) {
   if (result == 10) {
     exit_code = write_candidate(solver, output_path, n, t, reflection,
                                 palindrome, seed_path, seed_length, seed_right,
-                                (int)hamming_limit, &stats);
+                                (int)hamming_limit, solver_seed, force_phase,
+                                &stats);
     fprintf(stderr,
             "SAT n=%d t=%d seconds=%.6f path=%s (MUST RUN verifier.c)\n", n,
             t, elapsed, output_path);

@@ -375,3 +375,10 @@ small instances. Then use independent CaDiCaL seeds, split between ordinary
 seed phasing and forced seed phasing, on K=11 only. This concentrates the next
 bounded batch at the observed frontier rather than spending lanes on radii
 already closed or substantially harder radii.
+
+`t2_cadical.c` now exposes those controls as `--solver-seed N` and
+`--force-phase`. A paired small Hamming instance retained exactly 22 variables,
+51 clauses, and 134 literals with the controls on or off; both SAT models
+passed the frozen verifier. The exact n=18,t=4 boundary remained UNSAT with
+solver seed 17 and forced seed phasing. These controls affect CaDiCaL search
+order only, not formula generation.
