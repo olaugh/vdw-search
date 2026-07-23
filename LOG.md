@@ -110,3 +110,16 @@ sls.c (plain C, generator-side; verifier remains sole judge):
   cold/reversal for V1; cyclic/palindromic streamliners = V2), verifies any
   zero-violation output with verifier.c before anything is logged.
 First compute: W(7,3) at n=344 from the verified Komkov seed.
+
+## 2026-07-23 — Two-agent coordination (laptop + M5 Max)
+
+M5 Max agent is now active on this repo, owning T2 (w(2;3,t) from t=31):
+its own r=2 direct searcher, AKS seed transcription, CaDiCaL lane, design
+notes in LOG-m5.md. THIS agent (laptop) owns T4 (Komkov family, sls.c,
+runs/g*), LOG.md, and the Phase-2 generators. Shared contract:
+- verifier.c is FROZEN for both agents; any change requires both to rerun
+  the full test suite and gets its own clearly-marked commit.
+- Neither agent edits the other's searcher or log file.
+- Push discipline: pull --rebase on rejection, re-verify nothing of ours
+  was clobbered, push again. NEVER force-push on this repo.
+- certs/ is append-only; every cert names its producer in the '#' header.
