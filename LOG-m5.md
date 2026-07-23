@@ -611,3 +611,18 @@ One more zero-flip color-2 endpoint extension gives:
 
 The current project bounds are now three points beyond their AKS appendix
 bounds. Raw ignored probes: `runs/t2-t32-33-climb3-20260723-m5/`.
+
+### Direct climb: fourth points for t=32 and t=33
+
+The fourth one-point batch extended both current certificates:
+
+- `certs/m5_w2_3_32_gt1010.txt`: zero-flip color-2 endpoint extension;
+  frozen verifier `VALID ... lengths=(3,32), n=1010`, SHA-256
+  `9ad45712d46beef7678a5c9201aaf881bdc24d07644b37892471f22ea3ad884d`;
+- `certs/m5_w2_3_33_gt1067.txt`: the color-2 endpoint seed began with one
+  violation and WalkSAT repaired it in one flip; frozen verifier
+  `VALID ... lengths=(3,33), n=1067`, SHA-256
+  `90e66e6225c557b417e8fc6d72af06b901f0ec19c193d63b1eee1e1f9e667358`.
+
+The current project bounds are now four points beyond their AKS appendix
+bounds. Raw ignored probes: `runs/t2-t32-33-climb4-20260723-m5/`.
