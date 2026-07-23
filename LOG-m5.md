@@ -201,3 +201,18 @@ The `~1000x` stopping rule cannot be instantiated until the cold portfolio has
 an observed solve-cost distribution and a largest solved n. Record that
 calibration first; do not manufacture a budget from the paper's historical
 cutoffs.
+
+### Cold calibration batches
+
+- n=919, 18 independent 30-second starts: 0 solved. Best maintained violation
+  count 59. Raw ignored logs: `runs/t31-cal-n919-20260723-m5/`.
+- Ladder batch, six starts each for n=600/700/800, 30 seconds:
+  - n=600: 5/6 solved in 4.97–17.25 seconds; every emitted model passed the
+    frozen standalone verifier.
+  - n=700: 0/6 solved; best violation count 9.
+  - n=800: 0/6 solved; best violation count 24.
+  Raw ignored logs: `runs/t31-cal-ladder-20260723-m5/`.
+
+The n=600 models are calibration artifacts below the already tracked n=930
+AKS certificate, not new lower bounds. The largest cold-solved n is not yet
+pinned tightly enough for the 1000x stopping budget; narrow the 600–700 gap.
