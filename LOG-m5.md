@@ -479,3 +479,19 @@ Thus this batch's only results are the already tracked and independently
 verified t=36 and t=39 certificates. Every nonzero bank was rejected by the
 frozen verifier before being used only as CaDiCaL phases. No residual workers
 remained. Raw ignored logs: `runs/t2-high-t-pipeline-b1-20260723-m5/`.
+
+### Direct climb: t=36 and t=39 improve by a second point
+
+Exhausting original/reversed orientation and both endpoint colors at the next
+length immediately found zero-flip color-2 extensions of the new certificates:
+
+- `certs/m5_w2_3_36_gt1259.txt`: `VALID ... lengths=(3,36), n=1259`,
+  SHA-256
+  `182465150650d344bac38accce1187789a5c0561100ff9cd55a3534ff472d2de`;
+- `certs/m5_w2_3_39_gt1420.txt`: `VALID ... lengths=(3,39), n=1420`,
+  SHA-256
+  `11e5cdef316bdb2ad107921786c599553fceb60b33d68d37236700de63c87a88`.
+
+Both were accepted by the frozen standalone verifier before tracking. This
+places each current project bound two points beyond its AKS appendix bound.
+Raw ignored probes: `runs/t2-climb-endpoints-20260723-m5/`.
