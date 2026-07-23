@@ -52,3 +52,20 @@ certificates, preserving certificate length and the paper's claimed bound as
 separate fields. Phase M5-3 will add a separate CaDiCaL API lane with only safe
 reflection lex-leaders in the base encoding; palindromic instances remain
 explicitly separate lower-bound streamliners.
+
+### Phase M5-1 implementation checkpoint
+
+- Added independent `t2_sls.c`: implicit negative 3-clauses and positive
+  t-clauses, CSR incidence, maintained true counts, O(1) violated list,
+  focused WalkSAT and DDFW, tabu aspiration, adaptive noise, and random /
+  seed / cyclic / palindrome / digit-sphere starting classes.
+- The output deliberately labels itself `UNVERIFIED`; no verifier code is
+  linked or copied into the search state.
+- Strict C11 (`-Wall -Wextra -Wshadow -Wconversion -Wstrict-prototypes
+  -pedantic -Werror`) build passed.
+- ASan/UBSan self-test passed. The self-test performs 20,000 randomized flips
+  and repeatedly compares maintained counts/list positions with a fresh
+  enumeration of every 3-AP and t-AP.
+- End-to-end regression only (NOT a new result): both WalkSAT and DDFW emitted
+  w(2;3,4) candidates at n=17; the separately compiled `verifier.c` accepted
+  them. Seed parsing and all five starting classes were exercised likewise.
