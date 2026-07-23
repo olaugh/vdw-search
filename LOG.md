@@ -1,8 +1,8 @@
 # van der Waerden lower bounds — LOG
 
 Working machine: 8-core Apple laptop (M5 Max 18-core handoff planned for sweeps).
-Language plan: verifier is frozen C11 (trust anchor, never shares code with
-generators); serious search code will be C++20 (or Rust) per John.
+Language plan (per John, final): plain C throughout unless a major library
+need arises. Verifier is frozen C11 and never shares code with generators.
 
 ## 2026-07-23 — Phase 0: verifier
 
