@@ -640,3 +640,16 @@ Both color-2 endpoint extensions remained valid without a repair:
 
 The current project bounds are now five points beyond their AKS appendix
 bounds. Raw ignored probes: `runs/t2-t32-33-climb5-20260723-m5/`.
+
+### Direct climb: t=32 closes; t=33 reaches a sixth point
+
+At t=32,n=1012, the four original/reversed × endpoint-color cases produced
+no candidate in the zero/one-flip probe; all retained at least one violation.
+The cheap direct climb therefore closes at `w(2;3,32) > 1011`.
+
+At t=33, the original color-2 endpoint remained valid without repair:
+`certs/m5_w2_3_33_gt1069.txt` passed the frozen verifier with
+`VALID ... lengths=(3,33), n=1069`, SHA-256
+`ddcb28d7aec8a88ca572f1da9cfcd3ffa78fff59463a7e7b09332c9069e29bcf`.
+This is six points beyond the AKS appendix bound. Raw ignored probes:
+`runs/t2-t32-33-climb6-20260723-m5/`.
