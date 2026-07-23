@@ -88,3 +88,25 @@ Fixed (shift by p always); rejection of choice=0 showed the expected
 diff-44 AP; choice=1 ACCEPTED: W(2,5) > 177 verified, cert saved. W(2,6)
 z=1 regression re-verified. Lesson reinforced: log entries only AFTER the
 verifier accepts — never write outcome prose ahead of the run.
+
+## 2026-07-23 — Phase 3 design note: SLS searcher (per Fable spec, implementing verbatim)
+
+sls.c (plain C, generator-side; verifier remains sole judge):
+- k=3-uniform mode first (T4). APs = (a,d), ~n^2/4 total; per-element CSR
+  adjacency; violated-AP list with position-index array (O(1) swap-remove).
+- WalkSAT/SKC baseline AND DDFW in one binary (-m walksat|ddfw), shared core.
+- Move: pick violated AP (uniform; DDFW ~ weight-biased via best-of-3),
+  evaluate all 3x(r-1) recolorings, take min weighted break; noise p random
+  move. Tabu tenure 12 on recently flipped elements.
+- Noise p0=0.25 adaptive (x1.2 after 1e6 stagnant flips, decay on improve).
+- DDFW: int weights init 8; at local minimum transfer 2 from a satisfied
+  AP sharing an element (heaviest; random 1% of the time).
+- Seeding: seedfile (our cert format) with n' <= n, remainder random;
+  -P perturb% recolors that fraction before starting; -R reverses the seed
+  (reflection-invariance doubler); cold = no seed.
+- Restart policy: time-boxed runs (default 2e8 flips), restarts rotate
+  seeds/classes across cores, not mid-run (DDFW).
+- Driver launches a portfolio (~40% seed-derived incl. perturbed, rest
+  cold/reversal for V1; cyclic/palindromic streamliners = V2), verifies any
+  zero-violation output with verifier.c before anything is logged.
+First compute: W(7,3) at n=344 from the verified Komkov seed.
