@@ -176,3 +176,28 @@ Validation:
 - The termination callback returned UNKNOWN after 1.0004 seconds on the known
   hard n=349,t=19 boundary instance.
 - Strict C11 compile and an ASan/UBSan seeded solve passed.
+
+## 2026-07-23 — Phase M5-4 design: t=31 calibration and first attack
+
+Start with t=31 only. Establish a cold-solve baseline before interpreting
+failures at n=931:
+
+1. Run an 18-process, short cold portfolio at n=919 (the largest point the AKS
+   paper says its incremental local-search approach reached).
+2. Confirm seed-derived behavior at the published n=930 certificate.
+3. Attack n=931 with independent seed perturbations/reversal, random starts at
+   several color-1 densities, cyclic moduli, palindromic starts, and
+   digit-sphere starts; mix DDFW and focused WalkSAT. Run a seeded CaDiCaL
+   instance as a separate lane without exceeding 18 simultaneous CPU-heavy
+   processes.
+4. Every SLS/CDCL process has an explicit wall-clock limit. Initial batches
+   are minutes, not an hour; ask John before any projected wall time over one
+   hour.
+5. Keep raw logs under ignored `runs/`. If a generator emits a candidate,
+   immediately run the frozen standalone verifier; commit/push only after
+   acceptance.
+
+The `~1000x` stopping rule cannot be instantiated until the cold portfolio has
+an observed solve-cost distribution and a largest solved n. Record that
+calibration first; do not manufacture a budget from the paper's historical
+cutoffs.
