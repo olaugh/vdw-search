@@ -1,0 +1,54 @@
+# M5 Max T2 log — mixed w(2;3,t)
+
+This log is owned by the M5/T2 lane. It never edits `LOG.md` or `LOG-m2.md`.
+The existing `sls.c` is treated as M2/T4-owned. A rejected push is handled by
+pull/rebase, checking that no concurrent work was overwritten, re-verifying
+affected artifacts, and retrying; never force-push.
+
+Nothing below is a mathematical result unless the frozen standalone
+`verifier.c` accepts a saved certificate.
+
+## 2026-07-23 — Phase M5-1 design: direct mixed SLS, starting at t=31
+
+Target formula for an interval `[1,n]`, with one Boolean per element:
+
+- color 1 must contain no 3-term AP, represented by an implicit negative
+  3-clause for every `(a,a+d,a+2d)`;
+- color 2 must contain no t-term AP, represented by an implicit positive
+  t-clause for every `(a,a+d,...,a+(t-1)d)`.
+
+Implementation will be a separate `t2_sls.c`, sharing no code with the
+verifier or M2's T4 searcher. It will maintain per-element CSR incidence,
+per-constraint true counts, an O(1) violated-constraint list, and optional
+DDFW weights. A focused step chooses a violated constraint, evaluates flipping
+each participating bit by weighted break/make cost, and applies a best move
+with adaptive noise and tabu aspiration. DDFW redistributes weight at local
+minima without changing the verifier-visible problem.
+
+Independent restart classes will cover random, seed-derived, cyclic-mod-m,
+palindromic, and digit-set templates. Palindromic and other templates are
+streamliners only: any success must still be emitted as a complete ordinary
+certificate and accepted by `verifier.c`.
+
+Validation before search:
+
+1. Compile with strict C11 warnings plus ASan/UBSan.
+2. Cross-check maintained violation counts against a fresh brute-force recount
+   after randomized flips on small instances.
+3. Confirm any zero-violation state with the standalone verifier in a separate
+   process before saving or reporting it.
+
+Run protocol:
+
+- `git pull --ff-only` before every batch;
+- 18 independent single-threaded workers/restart classes;
+- calibrate on solved smaller instances before t=31;
+- no batch projected over one hour without John’s approval;
+- apply the stopping rule only after cold-solve calibration and an actual
+  best-violation history exist.
+
+Phase M5-2 will independently transcribe and verify the AKS t=31..39
+certificates, preserving certificate length and the paper's claimed bound as
+separate fields. Phase M5-3 will add a separate CaDiCaL API lane with only safe
+reflection lex-leaders in the base encoding; palindromic instances remain
+explicitly separate lower-bound streamliners.
