@@ -89,8 +89,24 @@ paper.
 | 38 | `w(2;3,38) > 1378` | 1378 | `certs/aks_w2_3_38_gt1378.txt` | accepted |
 | 39 | `w(2;3,39) > 1418` | 1418 | `certs/aks_w2_3_39_gt1418.txt` | accepted |
 
+### M5 T2 improvements over the AKS certificates
+
+These are project results beyond the AKS appendix certificates above.
+“Accepted” means the complete tracked certificate passed the frozen
+standalone verifier. A post-2014 literature re-sweep is still required before
+calling either a world record.
+
+| t | previous AKS bound | new certified bound | certificate length | tracked certificate | verifier |
+|---:|---:|---:|---:|---|---|
+| 36 | `w(2;3,36) > 1257` | `w(2;3,36) > 1258` | 1258 | `certs/m5_w2_3_36_gt1258.txt` | accepted |
+| 39 | `w(2;3,39) > 1418` | `w(2;3,39) > 1419` | 1419 | `certs/m5_w2_3_39_gt1419.txt` | accepted |
+
 ## PROJECT RESULTS (certificates in certs/, all verifier-accepted)
 
+- **w(2;3,36) > 1258** and **w(2;3,39) > 1419** — M5 T2 improvements
+  by one over the AKS 2014 appendix bounds, each with a complete
+  verifier-accepted certificate. Literature re-sweep pending before any
+  external record claim.
 - **W(7,3) > 344** — NEW RECORD (2026-07-23), beats Komkov arXiv:1701.05603
   v5 (> 343). Certificate: `certs/RECORD_W7_3_gt344.txt`. Method: DDFW SLS
   (engine v2) drove the instance to a single violated AP — the same

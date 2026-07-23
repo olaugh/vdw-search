@@ -439,3 +439,23 @@ Validation:
 - the ordinary zero-violation n=17,t=4 candidate path remained
   verifier-accepted and did not emit a misleading best-state file;
 - built-in state self-test and ASan/UBSan bank/write/reject path passed.
+
+### First high-t pipeline results: t=36 and t=39 improve immediately
+
+The first t=36..39 portfolio produced two complete candidates before any
+search flip: reversing each published AKS seed and appending the
+seed-initializer's endpoint color directly extends:
+
+- t=36 from n=1257 to n=1258;
+  `certs/m5_w2_3_36_gt1258.txt`, SHA-256
+  `4504e2110b293def09b823a3fb575fed702428e5fca097bbc86bd0b336dff944`;
+- t=39 from n=1418 to n=1419;
+  `certs/m5_w2_3_39_gt1419.txt`, SHA-256
+  `93cbeb382bb343a0a2e526a11ab2643071c381155e91942babd3c765bcddb6f0`.
+
+The frozen standalone verifier independently accepted both complete files:
+`VALID: ... lengths=(3,36), n=1258` and
+`VALID: ... lengths=(3,39), n=1419`. These strictly beat the AKS appendix
+bounds by one. They are project results; a current-literature re-sweep remains
+required before an external world-record claim. Other lanes in the bounded
+portfolio were still running when these certificates were committed.
