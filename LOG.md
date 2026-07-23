@@ -20,3 +20,21 @@ need arises. Verifier is frozen C11 and never shares code with generators.
   exactly one mono 3-AP (past W(2,3)=9 violations multiply).
 
 Next: Phase 1 — pin the frontier (records.md), verify W(2,7)>3703 currency.
+
+## 2026-07-23 — Phase 1: frontier pinned
+
+- Primary source: Monroe arXiv:1603.03301 v7 (Nov 2022), Tables 1-3 read in
+  full (PDF). Rabung power-residue method EXHAUSTED over all primes <= 950M
+  (500 CPU-years BOINC); cyclic zipping only swept to 40M (CPU-limited) —
+  that 40M..950M zip gap is the main unexplored construction space.
+- W(2,7) > 3703 CONFIRMED current; record is Rabung 1979 (p=617). Also
+  W(2,10) > 103474 is Rabung 1979 (p=11497) — both survived the 950M sweep.
+- No 2023-2026 concrete improvements found (searched; only asymptotic work:
+  Hunter 2111.01099, Green FoM-Pi, 2301.06212 for r>=5).
+- Mixed: AKS 1102.5433 (w(2;3,19)=349 exact; LBs t=20..39, conjectured exact
+  only t<=30 -> t=31..39 soft). Ahmed JIS 2013: w(2;5,7)=260 exact.
+- records.md written with full source table + target assessment:
+  T1 W(2,7) via zip>40M / double-zip / SLS repair (marquee, low odds,
+  honest reasons given), T2 w(2;3,31..39) (softest), T3 W(3,7)>48811
+  (2016-era SAT bound, SLS-rangeable). Also W(2,8) rides the zip gap.
+- STOPPED for Phase 1 review per protocol.
