@@ -597,3 +597,17 @@ The current certificates again admit zero-flip color-2 endpoint extensions:
 
 Both current project bounds are now two points beyond their AKS appendix
 bounds. Raw ignored probes: `runs/t2-t32-33-climb2-20260723-m5/`.
+
+### Direct climb: third points for t=32 and t=33
+
+One more zero-flip color-2 endpoint extension gives:
+
+- `certs/m5_w2_3_32_gt1009.txt`: frozen verifier
+  `VALID ... lengths=(3,32), n=1009`, SHA-256
+  `e7a8ffedd16471756b2b088f21d0949e11025e7b16dc028342b5c15b10fc1259`;
+- `certs/m5_w2_3_33_gt1066.txt`: frozen verifier
+  `VALID ... lengths=(3,33), n=1066`, SHA-256
+  `3f09c6a2bb170c2a4c7a0eac48fdd3cdedd24a07de27200bb4e1677e2f17cc5e`.
+
+The current project bounds are now three points beyond their AKS appendix
+bounds. Raw ignored probes: `runs/t2-t32-33-climb3-20260723-m5/`.
