@@ -310,3 +310,21 @@ standalone verifier accepts the complete emitted certificate. Validate the
 counter against exhaustive small-instance Hamming-ball enumeration, test K=0
 and K>=n boundaries, and rerun the existing unrestricted CaDiCaL regressions
 before launching parallel radii.
+
+### Bounded-neighborhood implementation checkpoint
+
+`t2_cadical.c` now accepts `--hamming K` and `--seed-right`. The former adds a
+Sinz sequential counter over mismatch literals; the latter right-aligns a
+shorter certificate in the deterministic color-2 extension vector.
+
+Validation completed before any n=931 use:
+
+- 120 exhaustive small checks over eight independently generated seeds,
+  n=5..8, t=3 or 4, both left/right alignment, and every K from 0 through n;
+  CaDiCaL SAT/UNSAT exactly matched brute-force Hamming-ball enumeration;
+- every SAT model from those checks stayed within K and passed the frozen
+  standalone verifier;
+- all 44 prior unrestricted reflection-on/off cases through the exact
+  w(2;3,3)=9 and w(2;3,4)=18 frontiers retained their earlier verdicts, with
+  all 40 SAT models verifier-accepted;
+- an ASan/UBSan Hamming solve and verifier handoff passed.

@@ -13,7 +13,8 @@
  *
  * Usage:
  *   t2_cadical -n N -t T -o CANDIDATE [-i seed-cert] [-l seconds]
- *               [--no-reflection | --palindrome] [--stats]
+ *               [--no-reflection | --palindrome] [--seed-right]
+ *               [--hamming K] [--stats]
  *
  * Exit 0: SAT candidate written.
  * Exit 1: UNSAT.
@@ -176,6 +177,68 @@ static void add_palindrome(CCaDiCaL *solver, EncodingStats *stats, int n) {
   }
 }
 
+/* Sinz sequential-counter encoding of at most k true mismatch literals.
+ * A positive phase means x_i=true in the seed; therefore the corresponding
+ * mismatch literal is -x_i. A negative phase makes +x_i the mismatch literal.
+ * This is a search streamliner only: UNSAT under this bound is not a result.
+ */
+static void add_hamming_at_most(CCaDiCaL *solver, EncodingStats *stats,
+                                const signed char *phases, int n, int k) {
+  if (k >= n) {
+    return;
+  }
+  if (k == 0) {
+    for (int variable = 1; variable <= n; variable++) {
+      const int mismatch = phases[variable] > 0 ? -variable : variable;
+      const int unit[1] = {-mismatch};
+      add_clause(solver, stats, unit, 1);
+    }
+    return;
+  }
+
+  const long long counter_count = (long long)(n - 1) * k;
+  if (counter_count > INT_MAX - stats->variables) {
+    die("Hamming counter variable count overflow");
+  }
+  const int first_counter = stats->variables + 1;
+  stats->variables += (int)counter_count;
+  stats->auxiliaries += (int)counter_count;
+
+#define COUNTER(i, j) (first_counter + ((i)-1) * k + ((j)-1))
+#define MISMATCH(i) (phases[(i)] > 0 ? -(i) : (i))
+
+  for (int i = 1; i <= n - 1; i++) {
+    const int introduce[2] = {-MISMATCH(i), COUNTER(i, 1)};
+    add_clause(solver, stats, introduce, 2);
+  }
+  for (int i = 2; i <= n - 1; i++) {
+    const int propagate[2] = {-COUNTER(i - 1, 1), COUNTER(i, 1)};
+    add_clause(solver, stats, propagate, 2);
+  }
+  for (int j = 2; j <= k; j++) {
+    for (int i = 2; i <= n - 1; i++) {
+      const int advance[3] = {
+          -MISMATCH(i),
+          -COUNTER(i - 1, j - 1),
+          COUNTER(i, j),
+      };
+      const int propagate[2] = {
+          -COUNTER(i - 1, j),
+          COUNTER(i, j),
+      };
+      add_clause(solver, stats, advance, 3);
+      add_clause(solver, stats, propagate, 2);
+    }
+  }
+  for (int i = 2; i <= n; i++) {
+    const int overflow[2] = {-MISMATCH(i), -COUNTER(i - 1, k)};
+    add_clause(solver, stats, overflow, 2);
+  }
+
+#undef MISMATCH
+#undef COUNTER
+}
+
 static int seed_next_int(FILE *file, long long *out) {
   int ch;
   for (;;) {
@@ -232,7 +295,7 @@ static long long seed_require_int(FILE *file) {
 
 /* Returns phases in 1..n: +1 means x=true, -1 means x=false. */
 static signed char *read_seed_phases(const char *path, int n, int t,
-                                     int *seed_length) {
+                                     bool seed_right, int *seed_length) {
   signed char *phases = xmalloc((size_t)(n + 1) * sizeof(*phases));
   for (int variable = 1; variable <= n; variable++) {
     phases[variable] = -1; /* deterministic extension: color 2 */
@@ -264,13 +327,14 @@ static signed char *read_seed_phases(const char *path, int n, int t,
     die("seed certificate length must be in [1,n]");
   }
   *seed_length = (int)source_n;
+  const int offset = seed_right ? n - *seed_length : 0;
   for (int variable = 1; variable <= *seed_length; variable++) {
     const long long color = seed_require_int(file);
     if (color < 1 || color > 2) {
       die("seed certificate color outside [1,2]");
     }
     const bool is_true = color1_is_true ? color == 1 : color == 2;
-    phases[variable] = (signed char)(is_true ? 1 : -1);
+    phases[offset + variable] = (signed char)(is_true ? 1 : -1);
   }
   long long extra;
   if (seed_next_int(file, &extra)) {
@@ -283,6 +347,7 @@ static signed char *read_seed_phases(const char *path, int n, int t,
 static int write_candidate(CCaDiCaL *solver, const char *path, int n, int t,
                            bool reflection, bool palindrome,
                            const char *seed_path, int seed_length,
+                           bool seed_right, int hamming_limit,
                            const EncodingStats *stats) {
   FILE *file = fopen(path, "w");
   if (file == NULL) {
@@ -291,9 +356,11 @@ static int write_candidate(CCaDiCaL *solver, const char *path, int n, int t,
   }
   fprintf(file,
           "# UNVERIFIED t2_cadical candidate: n=%d t=%d reflection=%d "
-          "palindrome=%d seed=%s seed_length=%d variables=%d clauses=%lld\n",
+          "palindrome=%d seed=%s seed_length=%d seed_right=%d hamming=%d "
+          "variables=%d clauses=%lld\n",
           n, t, reflection ? 1 : 0, palindrome ? 1 : 0,
-          seed_path != NULL ? seed_path : "-", seed_length, stats->variables,
+          seed_path != NULL ? seed_path : "-", seed_length,
+          seed_right ? 1 : 0, hamming_limit, stats->variables,
           (long long)stats->clauses);
   fprintf(file, "2\n3 %d\n%d\n", t, n);
   for (int variable = 1; variable <= n; variable++) {
@@ -311,7 +378,8 @@ static int write_candidate(CCaDiCaL *solver, const char *path, int n, int t,
 static void print_usage(const char *program) {
   fprintf(stderr,
           "usage: %s -n N -t T -o CANDIDATE [-i seed-cert] [-l seconds]\n"
-          "       [--no-reflection | --palindrome] [--stats]\n",
+          "       [--no-reflection | --palindrome] [--seed-right]\n"
+          "       [--hamming K] [--stats]\n",
           program);
 }
 
@@ -323,7 +391,9 @@ int main(int argc, char **argv) {
   long long time_limit = 0;
   bool reflection = true;
   bool palindrome = false;
+  bool seed_right = false;
   bool print_stats = false;
+  long long hamming_limit = -1;
 
   for (int i = 1; i < argc; i++) {
     if (strcmp(argv[i], "-n") == 0 && i + 1 < argc) {
@@ -341,6 +411,10 @@ int main(int argc, char **argv) {
     } else if (strcmp(argv[i], "--palindrome") == 0) {
       palindrome = true;
       reflection = false;
+    } else if (strcmp(argv[i], "--seed-right") == 0) {
+      seed_right = true;
+    } else if (strcmp(argv[i], "--hamming") == 0 && i + 1 < argc) {
+      hamming_limit = parse_ll(argv[++i], "Hamming limit");
     } else if (strcmp(argv[i], "--stats") == 0) {
       print_stats = true;
     } else {
@@ -348,7 +422,9 @@ int main(int argc, char **argv) {
       return 2;
     }
   }
-  if (n < 3 || t < 3 || t > n || output_path == NULL || time_limit < 0) {
+  if (n < 3 || t < 3 || t > n || output_path == NULL || time_limit < 0 ||
+      hamming_limit > INT_MAX || hamming_limit < -1 ||
+      ((seed_right || hamming_limit >= 0) && seed_path == NULL)) {
     print_usage(argv[0]);
     return 2;
   }
@@ -372,9 +448,13 @@ int main(int argc, char **argv) {
   }
 
   int seed_length = 0;
-  signed char *phases = read_seed_phases(seed_path, n, t, &seed_length);
+  signed char *phases =
+      read_seed_phases(seed_path, n, t, seed_right, &seed_length);
   for (int variable = 1; variable <= n; variable++) {
     ccadical_phase(solver, phases[variable] > 0 ? variable : -variable);
+  }
+  if (hamming_limit >= 0) {
+    add_hamming_at_most(solver, &stats, phases, n, (int)hamming_limit);
   }
   free(phases);
 
@@ -390,10 +470,11 @@ int main(int argc, char **argv) {
   fprintf(stderr,
           "solve: n=%d t=%d variables=%d auxiliaries=%d clauses=%lld "
           "literals=%lld reflection=%d palindrome=%d seed_length=%d "
-          "cadical=%s\n",
+          "seed_right=%d hamming=%lld cadical=%s\n",
           n, t, stats.variables, stats.auxiliaries, (long long)stats.clauses,
           (long long)stats.literals, reflection ? 1 : 0, palindrome ? 1 : 0,
-          seed_length, ccadical_signature());
+          seed_length, seed_right ? 1 : 0, hamming_limit,
+          ccadical_signature());
   const double started = monotonic_seconds();
   const int result = ccadical_solve(solver);
   const double elapsed = monotonic_seconds() - started;
@@ -404,7 +485,8 @@ int main(int argc, char **argv) {
   int exit_code;
   if (result == 10) {
     exit_code = write_candidate(solver, output_path, n, t, reflection,
-                                palindrome, seed_path, seed_length, &stats);
+                                palindrome, seed_path, seed_length, seed_right,
+                                (int)hamming_limit, &stats);
     fprintf(stderr,
             "SAT n=%d t=%d seconds=%.6f path=%s (MUST RUN verifier.c)\n", n,
             t, elapsed, output_path);
