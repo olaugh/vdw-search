@@ -84,30 +84,48 @@ static void recolor(int e, int c) {
   }
 }
 
-/* Weighted break of recoloring e -> c: sum of weights of APs through e that
- * become violated minus those that become satisfied. */
-static long long delta_for(int e, int c) {
-  int old = col[e];
-  long long delta = 0;
-  col[e] = (unsigned char)c;
+/* Single pass over e's adjacency: brk[c] = weight of satisfied APs through e
+ * whose OTHER two elements are both color c (recoloring e to c violates
+ * them); *make = weight of currently-violated APs through e (recoloring e to
+ * anything else satisfies them). delta(e,c) = brk[c] - make for c != col[e].
+ * One scan replaces r-1 full delta scans. */
+static void eval_element(int e, long long *brk, long long *make) {
+  for (int c = 0; c < r; c++) {
+    brk[c] = 0;
+  }
+  *make = 0;
+  const int ce = col[e];
   for (int t = adj_start[e]; t < adj_start[e + 1]; t++) {
     int i = adj[t];
-    int now = ap_violated(i);
-    int was = vpos[i] >= 0;
-    if (now && !was) {
-      delta += w[i];
-    } else if (!now && was) {
-      delta -= w[i];
+    int a = ap_a[i], d = ap_d[i];
+    int e1 = a, e2 = wrap(a + d), e3 = wrap(a + 2 * d);
+    int o1, o2; /* the two elements other than e */
+    if (e1 == e) {
+      o1 = e2;
+      o2 = e3;
+    } else if (e2 == e) {
+      o1 = e1;
+      o2 = e3;
+    } else {
+      o1 = e1;
+      o2 = e2;
+    }
+    int c1 = col[o1], c2 = col[o2];
+    if (c1 == c2) {
+      if (c1 == ce) {
+        *make += w[i]; /* currently violated; any recolor of e fixes it */
+      } else {
+        brk[c1] += w[i]; /* recoloring e to c1 would violate it */
+      }
     }
   }
-  col[e] = (unsigned char)old;
-  return delta;
 }
 
 int main(int argc, char **argv) {
   long long maxflips = 200000000LL;
   unsigned long long seed = 12345;
   const char *mode = "ddfw", *seedfile = NULL, *outfile = NULL;
+  const char *bestfile = NULL;
   int perturb_pct = 0, reverse_seed = 0, cyclic = 0;
   n = 0;
   r = 0;
@@ -130,6 +148,8 @@ int main(int argc, char **argv) {
       reverse_seed = 1;
     } else if (!strcmp(argv[i], "-C")) {
       cyclic = 1;
+    } else if (!strcmp(argv[i], "-b")) {
+      bestfile = argv[++i];
     } else if (!strcmp(argv[i], "-o")) {
       outfile = argv[++i];
     } else {
@@ -145,6 +165,7 @@ int main(int argc, char **argv) {
     fprintf(stderr, "cyclic mode requires odd n (see unroll analysis)\n");
     return 2;
   }
+  int seed_len = 0;
   int ddfw = !strcmp(mode, "ddfw");
   cyclic_mode = cyclic;
   rng_state = seed * 2654435761ULL + 1;
@@ -198,6 +219,7 @@ int main(int argc, char **argv) {
     for (int e = 1; e <= sn; e++) {
       col[e] = (unsigned char)(reverse_seed ? tmp[sn + 1 - e] : tmp[e]);
     }
+    seed_len = (int)sn;
     free(tmp);
   }
   for (int e = 1; e <= n; e++) {
@@ -267,6 +289,26 @@ int main(int argc, char **argv) {
     }
   }
   tabu_until = calloc((size_t)(n + 1), sizeof(long long));
+  unsigned char *bestcol = bestfile ? malloc((size_t)(n + 1)) : NULL;
+  if (bestcol) {
+    memcpy(bestcol + 1, col + 1, (size_t)n);
+  }
+  /* Min-conflict initialization for extension elements beyond the seed. */
+  if (seed_len > 0 && seed_len < n) {
+    long long brk[32], make;
+    for (int e = seed_len + 1; e <= n; e++) {
+      eval_element(e, brk, &make);
+      int bc0 = col[e];
+      long long best0 = brk[bc0];
+      for (int c = 0; c < r; c++) {
+        if (brk[c] < best0) {
+          best0 = brk[c];
+          bc0 = c;
+        }
+      }
+      recolor(e, bc0);
+    }
+  }
 
   /* ---- search loop ---- */
   double noise = 0.25;
@@ -298,16 +340,18 @@ int main(int argc, char **argv) {
     } else {
       long long best = 0;
       int found = 0;
-      for (int ei = 0; ei < 3; ei++) {
+      long long brk[32], make;
+      for (int ei = 0; ei < 3 && !(found && best < 0 && bc == -2); ei++) {
         int e = elems[ei];
         if (tabu_until[e] > flips) {
           continue;
         }
+        eval_element(e, brk, &make);
         for (int c = 0; c < r; c++) {
           if (c == col[e]) {
             continue;
           }
-          long long dl = delta_for(e, c);
+          long long dl = brk[c] - make;
           if (!found || dl < best) {
             best = dl;
             be = e;
@@ -358,13 +402,13 @@ int main(int argc, char **argv) {
     if (nv < best_nv) {
       best_nv = nv;
       last_improve = flips;
-      noise = 0.25 + (noise - 0.25) * 0.5;
-    } else if (flips - last_improve > 1000000) {
-      noise = noise * 1.2;
-      if (noise > 0.6) {
-        noise = 0.6;
+      noise = 0.25 + (noise - 0.25) * 0.3; /* pull strongly toward base */
+      if (bestcol) {
+        memcpy(bestcol + 1, col + 1, (size_t)n);
       }
-      last_improve = flips; /* reset stagnation clock */
+    } else if (flips - last_improve > 1000000) {
+      noise = noise + (0.5 - noise) * 0.3; /* bounded escalation */
+      last_improve = flips;
     }
   }
 
@@ -389,5 +433,19 @@ int main(int argc, char **argv) {
   }
   fprintf(stderr, "exhausted: n=%d r=%d flips=%lld best_nv=%d final_nv=%d\n",
           n, r, flips, best_nv, nv);
+  if (bestcol && bestfile) {
+    FILE *f = fopen(bestfile, "w");
+    fprintf(f, "# BEST-STATE (NOT a certificate): n=%d r=%d best_nv=%d\n", n,
+            r, best_nv);
+    fprintf(f, "%d\n", r);
+    for (int i = 0; i < r; i++) {
+      fprintf(f, "3%s", i + 1 < r ? " " : "\n");
+    }
+    fprintf(f, "%d\n", n);
+    for (int e = 1; e <= n; e++) {
+      fprintf(f, "%d%s", bestcol[e] + 1, e % 60 == 0 || e == n ? "\n" : " ");
+    }
+    fclose(f);
+  }
   return 1;
 }

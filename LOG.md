@@ -141,3 +141,18 @@ runs/g*), LOG.md, and the Phase-2 generators. Shared contract:
   start). Open question (escalating to Fable): are Komkov's 6.5%
   mutations load-bearing, i.e. is cyclic m>=259 UNSAT?
 - kissat 4.0.4 installed (approved).
+
+## 2026-07-23 — v1 wave result + engine v2
+
+- v1 wave at W(7,3) n=344 (8x200M flips): ALL EXHAUSTED, but two configs
+  reached best_nv=1 (one violated AP from a record) before the noise-cap
+  ratchet drove them off. v1 discarded best states — only stats survived.
+- Engine v2 (sls.c): (1) single-pass eval_element computes break[] for all
+  colors + make in ONE adjacency scan (~2.3x measured: 190k -> 440k
+  flips/s); (2) noise control fixed (bounded escalation toward 0.5, strong
+  pull-down on improvement — no ratchet-and-stick); (3) min-conflict init
+  for extension elements beyond the seed; (4) -b bestfile dumps best-ever
+  state (marked NOT-a-certificate) for ILS reseeding.
+- v2 wave: 6 ILS chains at n=344 (run -> save best -> reseed best -P 2,
+  6 rounds x 150M flips), 4 cyclic repairs at m=259/261 continuing.
+  v2 smoke hit best_nv=1 within 20M flips.
