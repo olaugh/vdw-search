@@ -382,3 +382,15 @@ already closed or substantially harder radii.
 passed the frozen verifier. The exact n=18,t=4 boundary remained UNSAT with
 solver seed 17 and forced seed phasing. These controls affect CaDiCaL search
 order only, not formula generation.
+
+### Diversified K=11 batch
+
+Eighteen independent 300-second n=931,K=11 CaDiCaL lanes used solver seeds
+1100..1117, alternating the isomorphic left/right seed alignments and ordinary
+versus forced AKS phasing. All 18 returned UNKNOWN. No candidate was emitted,
+the frozen verifier had nothing to accept, and no lower bound is claimed.
+
+This rules out the hypothesis that the first K=11 failures were merely one
+unlucky CaDiCaL seed or early loss of the supplied phase vector; it does not
+close the K=11 ball. Raw ignored logs:
+`runs/t31-n931-hamming-k11-diverse-20260723-m5/`.
