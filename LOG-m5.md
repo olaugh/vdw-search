@@ -328,3 +328,26 @@ Validation completed before any n=931 use:
   w(2;3,3)=9 and w(2;3,4)=18 frontiers retained their earlier verdicts, with
   all 40 SAT models verifier-accepted;
 - an ASan/UBSan Hamming solve and verifier handoff passed.
+
+### AKS n=931 neighborhood sweep, K=0..8
+
+CaDiCaL exhaustively returned UNSAT for both the left-aligned extension
+`seed[1..930],2` and its right-aligned reflection `2,seed[1..930]` at every
+Hamming radius K=0 through 8. Reflection breaking was disabled, so each
+verdict covers the complete selected ball (but is not global n=931 UNSAT).
+
+| K | left solve | right solve |
+|---:|---:|---:|
+| 0 | 0.000005 s | 0.000003 s |
+| 1 | 0.023 s | 0.025 s |
+| 2 | 0.261 s | 0.243 s |
+| 3 | 0.514 s | 0.491 s |
+| 4 | 1.573 s | 1.137 s |
+| 5 | 2.796 s | 3.192 s |
+| 6 | 8.738 s | 7.997 s |
+| 7 | 17.554 s | 15.784 s |
+| 8 | 29.900 s | 31.945 s |
+
+Thus no solution exists within eight recolorings of either endpoint-aligned
+AKS extension. No candidate was emitted and no lower bound is claimed. Raw
+ignored logs: `runs/t31-n931-hamming-k0-8-20260723-m5/`.
