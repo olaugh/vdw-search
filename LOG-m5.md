@@ -351,3 +351,27 @@ verdict covers the complete selected ball (but is not global n=931 UNSAT).
 Thus no solution exists within eight recolorings of either endpoint-aligned
 AKS extension. No candidate was emitted and no lower bound is claimed. Raw
 ignored logs: `runs/t31-n931-hamming-k0-8-20260723-m5/`.
+
+### AKS n=931 neighborhood sweep, K=9..17
+
+- K=9: both complete balls UNSAT (left 137.949 s, right 80.221 s).
+- K=10: left complete ball UNSAT in 137.046 s. The independent right solver
+  timed out, but that ball is the exact reflection of the left ball because
+  the n=930 AKS seed is palindromic; the mathematical neighborhood is
+  therefore closed through K=10.
+- K=11..17: both solver lanes reached the 300-second limit UNKNOWN.
+
+No candidate was emitted and no lower bound is claimed. The exhaustive
+neighborhood conclusion is only that any n=931 solution differs from either
+endpoint-aligned AKS extension in at least 11 positions. Raw ignored logs:
+`runs/t31-n931-hamming-k9-17-20260723-m5/`.
+
+## 2026-07-23 — Phase M5-6 design: diversify the K=11 frontier
+
+The first unresolved ball is K=11. Add narrow CaDiCaL search controls for its
+documented random seed and `forcephase` option; neither changes the CNF.
+Validate unchanged clause counts/verdicts and verifier-accepted SAT models on
+small instances. Then use independent CaDiCaL seeds, split between ordinary
+seed phasing and forced seed phasing, on K=11 only. This concentrates the next
+bounded batch at the observed frontier rather than spending lanes on radii
+already closed or substantially harder radii.
