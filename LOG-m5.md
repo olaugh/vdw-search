@@ -89,3 +89,18 @@ For each t=31..39:
 5. Add an explicit `certificate length` and `claimed bound` field to
    `records.md`, keeping this shared-document update in its own clearly named
    commit.
+
+### AKS t=31 recovered and independently verified
+
+- Primary payload: arXiv:1102.5433v4 TeX source, appendix paragraph
+  “w(2;3,31) > 930”; tracked verbatim as
+  `sources/aks_v4_t31.compact`.
+- Independent `aks_expand.c` expanded the paper's 0/1 run notation to exactly
+  930 colors. AKS 0 (the block avoiding 3-APs) maps to verifier color 1;
+  AKS 1 (the block avoiding 31-APs) maps to verifier color 2.
+- Frozen standalone verifier output:
+  `VALID: r=2 colors, lengths=(3,31), n=930`.
+- Tracked certificate: `certs/aks_w2_3_31_gt930.txt`, SHA-256
+  `d265a9631b348a89a34fb150b1bebc6bf1e8e5adbc424bacbeef47aee11412e4`.
+- This reproduces the published lower bound and supplies the required t=31
+  seed. It is not a new bound.

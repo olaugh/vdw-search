@@ -70,6 +70,17 @@ paper is Ramsey numbers, not vdW.
   re-derived here — pin down before targeting (TODO if selected).
 - w(k; 2,...,2,s,t) family: Ahmed JIS 2013 Table 4 (exact, small n).
 
+### AKS w(2;3,t) seed certificates recovered on M5
+
+The paper's claimed bound and the actual expanded certificate length are
+recorded separately. “Accepted” means the frozen standalone `verifier.c`
+accepted the tracked certificate, not merely that its length matched the
+paper.
+
+| t | paper's claimed bound | certificate length | tracked certificate | verifier |
+|---:|---:|---:|---|---|
+| 31 | `w(2;3,31) > 930` | 930 | `certs/aks_w2_3_31_gt930.txt` | accepted |
+
 ## Corrections from external review (Fable) — verified against sources
 
 1. **Komkov (arXiv:1701.05603 v5, Oct 2020)** — MISSED in first pass; now
