@@ -459,3 +459,23 @@ The frozen standalone verifier independently accepted both complete files:
 bounds by one. They are project results; a current-literature re-sweep remains
 required before an external world-record claim. Other lanes in the bounded
 portfolio were still running when these certificates were committed.
+
+### Completed t=36..39 pipeline batch
+
+All remaining stages finished under their 120-second per-stage limits:
+
+| target | seed-SLS outcomes | direct/banked CDCL |
+|---|---|---|
+| t=36,n=1258 | reverse P0 SAT at 0 flips; other banks best 2 and 13 | all UNKNOWN |
+| t=37,n=1339 | banks best 1, 1, and 3 | all UNKNOWN |
+| t=38,n=1379 | banks best 5, 1, and 20 | all UNKNOWN |
+| t=39,n=1419 | reverse P0 SAT at 0 flips; other banks best 1 and 12 | all UNKNOWN |
+
+For t=37 and t=38, both endpoint colors were also tested with the original
+and reversed AKS seed. None of those four direct extensions is valid; the
+complementary-color probes can reach best=1 after one flip but not zero.
+
+Thus this batch's only results are the already tracked and independently
+verified t=36 and t=39 certificates. Every nonzero bank was rejected by the
+frozen verifier before being used only as CaDiCaL phases. No residual workers
+remained. Raw ignored logs: `runs/t2-high-t-pipeline-b1-20260723-m5/`.
