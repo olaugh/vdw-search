@@ -1,0 +1,5 @@
+# test: INVALID  same coloring, k-list swapped; first violation color=2 start=1 diff=1
+2
+4 3
+17
+2 2 2 1 1 2 1 2 2 2 1 1 2 1 2 2 2

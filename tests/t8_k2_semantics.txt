@@ -1,0 +1,5 @@
+# test: INVALID  k=2 means color 1 may appear at most once; elements 1 and 3 form the 2-AP
+2
+2 3
+3
+1 2 1

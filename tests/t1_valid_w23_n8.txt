@@ -1,0 +1,5 @@
+# test: VALID  W(2,3) > 8  (comment lines must be ignored)
+2
+3 3
+8
+1 2 2 1 1 2 2 1

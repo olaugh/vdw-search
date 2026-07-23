@@ -1,0 +1,5 @@
+# test: INVALID exactly one mono 3-AP, widely spread: color=1 start=1 diff=4
+2
+3 3
+9
+1 1 2 2 1 1 2 2 1
