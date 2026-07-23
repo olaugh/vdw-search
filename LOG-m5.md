@@ -69,3 +69,23 @@ explicitly separate lower-bound streamliners.
 - End-to-end regression only (NOT a new result): both WalkSAT and DDFW emitted
   w(2;3,4) candidates at n=17; the separately compiled `verifier.c` accepted
   them. Seed parsing and all five starting classes were exercised likewise.
+
+## 2026-07-23 — Phase M5-2 design: AKS t=31..39 seed recovery
+
+Use the final Ahmed–Kullmann–Snevily paper/source as the primary reference,
+locate the authors' original certificate payload or generator data, and retain
+enough provenance to reproduce every transcription. Do not infer a certificate
+from a claimed table entry.
+
+For each t=31..39:
+
+1. Record the publication's claimed lower bound separately from the actual
+   certificate interval length.
+2. Convert the original representation to the frozen verifier format without
+   sharing verifier code.
+3. Run the standalone verifier on the complete converted certificate.
+4. Save only verifier-accepted seeds under `certs/`; a failed or unavailable
+   transcription is logged as such, never filled in heuristically.
+5. Add an explicit `certificate length` and `claimed bound` field to
+   `records.md`, keeping this shared-document update in its own clearly named
+   commit.
