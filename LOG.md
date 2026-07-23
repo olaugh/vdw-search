@@ -58,3 +58,19 @@ Pasted Phase-1 summary to Fable; its critique verified claim-by-claim:
 - REVISED portfolio: T2 (w(2;3,31..39)) heaviest, T4 Komkov family
   (new banker), T3 W(3,7) SLS, T1 reduced to multi-zips + repair at 3704+.
 Phase 1 re-presented for approval.
+
+## 2026-07-23 — Phase 2: reproduction complete
+
+- gen_residue.c (plain C, zero shared code with verifier): Rabung base
+  (free colors at residue-0 slots, base-r `choice` mask), Herwig 4-step
+  zipper (z<=4), repetitive expansion. Free choices scanned by driver;
+  verifier.c is the sole judge.
+- REPRODUCED, all verifier-accepted, in certs/:
+  * W(2,7) > 3703 (p=617, z=0, choice=1) — the 1979 marquee record.
+  * W(2,6) > 1131 (p=113, z=1, choice=1) — matches known max (W=1132).
+    choice=0 rejected with EXACTLY the predicted spacing-226 AP through
+    the residue-0 copies — construction understanding confirmed.
+  * W(2,5) > 177 (p=11, z=2) — double-zip path exercised, matches max.
+  * Komkov W(7,3) > 343 and W(8,3) > 515 transcribed from the arXiv PDF,
+    both verified first try — T4 SLS seeds ready.
+- STOPPED for Phase 2 review.
