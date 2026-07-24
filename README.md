@@ -131,8 +131,8 @@ make arxiv
 ```
 
 This writes `output/arxiv/vdw-search-arxiv-source.tar.gz` and a PDF compiled
-from a fresh extraction of that archive. Copy-paste submission metadata and
-the announcement draft are tracked under [`submission/`](submission/).
+from a fresh extraction of that archive. Copy-paste submission metadata is
+tracked under [`submission/`](submission/).
 
 ## Building the search tools
 
