@@ -110,6 +110,19 @@ malformed input.
 The logs are provenance, not a source of certified claims. `records.md` and
 the verifier-accepted files in `certs/` are the concise result record.
 
+## Paper
+
+The LaTeX manuscript is in [`paper/`](paper/). With
+[Tectonic](https://tectonic-typesetting.github.io/) installed:
+
+```sh
+make paper
+```
+
+The final PDF is written to `output/pdf/vdw-search-paper.pdf`. The manuscript
+states the physical coloring behind every headline formula and contains a
+separate human–AI methods and disclosure section.
+
 ## Building the search tools
 
 Build the dependency-free tools:
@@ -164,10 +177,11 @@ complete certificates checked by the independent verifier.
 
 ## Citation
 
-Citation metadata is provided in [CITATION.cff](CITATION.cff). For a paper,
-cite the immutable tagged release/archival DOI rather than the moving `main`
-branch. A Zenodo DOI and paper citation will be added when the first public
-release is frozen.
+Citation metadata for the manuscript and software is provided in
+[CITATION.cff](CITATION.cff). Cite the paper together with an immutable tagged
+release or archival DOI rather than the moving `main` branch. The arXiv and
+Zenodo identifiers can be added to the metadata after submission and archival
+release.
 
 ## License
 

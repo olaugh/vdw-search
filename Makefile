@@ -1,6 +1,9 @@
 CC ?= cc
 CXX ?= c++
 PYTHON ?= python3
+TECTONIC ?= tectonic
+PDF_BUILD_DIR ?= tmp/pdfs
+PDF_OUTPUT_DIR ?= output/pdf
 
 CPPFLAGS ?= -D_POSIX_C_SOURCE=200809L
 CFLAGS ?= -O3 -std=c11 -Wall -Wextra
@@ -11,7 +14,7 @@ PROGRAMS = verifier aks_expand gen_residue sls t2_sls t2_cnf \
 	cnf_linear cnf_cyclic
 
 .PHONY: all check test reproduce-published verify-certificates \
-	verify-hashes clean
+	verify-hashes paper clean
 
 all: $(PROGRAMS)
 
@@ -47,6 +50,13 @@ check: all
 	$(MAKE) reproduce-published
 	$(MAKE) verify-certificates
 	$(MAKE) verify-hashes
+
+paper: paper/main.tex paper/references.bib
+	mkdir -p $(PDF_BUILD_DIR) $(PDF_OUTPUT_DIR)
+	cp paper/references.bib $(PDF_BUILD_DIR)/references.bib
+	$(TECTONIC) paper/main.tex --outdir $(PDF_BUILD_DIR) \
+		--keep-logs --keep-intermediates
+	cp $(PDF_BUILD_DIR)/main.pdf $(PDF_OUTPUT_DIR)/vdw-search-paper.pdf
 
 clean:
 	rm -f $(PROGRAMS) t2_cadical t2_cadical.o

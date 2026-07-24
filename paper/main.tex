@@ -1,0 +1,494 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{seqsplit}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{xurl}
+\usepackage[colorlinks=true,allcolors=blue!55!black]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\hypersetup{
+  pdftitle={Verifier-Guided Human-AI Search for Six Van der Waerden Lower Bounds},
+  pdfauthor={John O'Laughlin},
+  pdfsubject={Verifier-checked computational lower bounds for van der Waerden numbers},
+  pdfkeywords={van der Waerden numbers, arithmetic progressions, SAT,
+               stochastic local search, human-AI mathematics}
+}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\interval}[1]{[1,#1]}
+\newcommand{\ap}{\textnormal{-AP}}
+\newcommand{\repo}{\url{https://github.com/olaugh/vdw-search}}
+
+\title{Verifier-Guided Human--AI Search for\\
+Six Van der Waerden Lower Bounds}
+\author{John O'Laughlin\\
+\small Independent researcher}
+\date{July 23, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We give explicit colorings establishing
+\[
+  W(7,3)>344
+\]
+and
+\[
+\begin{gathered}
+  w(2;3,32)>1011,\quad w(2;3,33)>1069,\quad w(2;3,35)>1205,\\
+  w(2;3,36)>1259,\quad w(2;3,39)>1420.
+\end{gathered}
+\]
+Here and throughout, notation is \emph{color first}: \(W(r,k)\) concerns
+\(r\) colors and monochromatic \(k\)-term arithmetic progressions, while
+\(w(r;k_1,\ldots,k_r)\) assigns forbidden length \(k_i\) to color \(i\).
+The first result is therefore a 7-coloring of \(\interval{344}\) with no
+monochromatic 3-term progression, not a 3-coloring avoiding 7-term
+progressions.  The mixed results are 2-colorings in which color 1 avoids
+3-term progressions and color 2 avoids \(t\)-term progressions.
+
+The search combined focused stochastic local search with clause-weight
+redistribution and phase-seeded conflict-driven clause learning.  Most mixed
+improvements were obtained by extending existing certificates, while one
+required a two-variable coordinated repair found by a SAT solver.  Every
+claim is represented by a complete coloring and checked by a small,
+standalone verifier that shares no code with the search programs.  We also
+describe the role of large-language-model assistants in literature triage,
+software development, and experiment orchestration.  Generated prose or
+solver status was never treated as evidence: the governing rule was
+\emph{certificate or nothing}.
+\end{abstract}
+
+\section{Introduction}
+
+For positive integers \(r\) and \(k\), van der Waerden's theorem says that a
+sufficiently long interval, under every \(r\)-coloring, contains a
+monochromatic arithmetic progression of length \(k\).  Determining the least
+such interval length is difficult even for small parameters.  Computational
+lower bounds are naturally constructive: one exhibits a coloring of a long
+interval that avoids all forbidden progressions.
+
+Explicit constructions, local search, and propositional satisfiability have
+all contributed to this program
+\cite{herwig2007,ahmed2014,heule2017,monroe2022,komkov2020}.  Ahmed, Kullmann,
+and Snevily studied the mixed family \(w(2;3,t)\), proving
+\(w(2;3,19)=349\) and publishing lower-bound certificates through \(t=39\)
+\cite{ahmed2014}.  Komkov later published SAT-derived certificates for
+several classical parameters, including \(W(7,3)>343\)
+\cite{komkov2020}.  The constructions in this paper improve five of the
+mixed bounds stated by Ahmed--Kullmann--Snevily and the \(W(7,3)\) bound
+stated by Komkov.
+
+The contributions are:
+
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+  \item six complete, verifier-accepted colorings giving the bounds in the
+        abstract;
+  \item a hybrid search pipeline in which stochastic local search supplies
+        strong phase information to a complete SAT solver;
+  \item a small code-independent verifier, independent test generation, and
+        cryptographic hashes for the certificates; and
+  \item a transparent account of an interactive human--AI computational
+        mathematics workflow and its epistemic safeguards.
+\end{enumerate}
+
+The inequalities themselves do not depend on a novelty search: each follows
+from its displayed finite certificate.  Priority is a separate bibliographic
+claim.  To the best of our literature search, the bounds improve the cited
+published baselines; the companion repository preserves the source
+transcriptions used in that comparison.
+
+\section{Notation and the physical meaning of the claims}
+\label{sec:notation}
+
+An arithmetic progression of length \(k\), abbreviated \(k\ap\), is
+\[
+  a,\ a+d,\ \ldots,\ a+(k-1)d
+\]
+with \(d\geq 1\).  Write \(\interval{n}=\{1,\ldots,n\}\).
+
+\begin{itemize}[leftmargin=*]
+  \item \(W(r,k)\) is the least \(n\) such that every coloring
+        \(c:\interval{n}\to\{1,\ldots,r\}\) contains a monochromatic
+        \(k\ap\).
+  \item \(w(r;k_1,\ldots,k_r)\) is the least \(n\) such that every such
+        coloring has, for some color \(i\), a \(k_i\ap\) entirely in color
+        \(i\).
+\end{itemize}
+
+Thus \(W(r,k)=w(r;k,\ldots,k)\).  This paper always puts the number of colors
+first.  Some literature reverses the two arguments of the classical
+quantity.  Under that alternative convention, our \(W(7,3)\) can be written
+\(W(3,7)\).  To make an argument-order mistake impossible to hide, we pair
+every formula with its physical object:
+
+\begin{quote}
+\textbf{\(W(7,3)>344\) means a 7-coloring of \(\interval{344}\) containing
+no monochromatic 3-term arithmetic progression.}
+\end{quote}
+
+Likewise, \(w(2;3,32)>1011\) means a 2-coloring of
+\(\interval{1011}\) in which color 1 has no \(3\ap\) and color 2 has no
+\(32\ap\).  The standalone verifier prints both the parameter tuple and the
+color-first formula, and regression tests lock this wording.
+
+\section{Certified results}
+\label{sec:results}
+
+\begin{theorem}
+\label{thm:main}
+There is a 7-coloring of \(\interval{344}\) with no monochromatic
+\(3\ap\).  There are also 2-colorings of \(\interval{n_t}\) in which color
+1 contains no \(3\ap\) and color 2 contains no \(t\ap\), for
+\[
+  (t,n_t)\in
+  \{(32,1011),(33,1069),(35,1205),(36,1259),(39,1420)\}.
+\]
+Consequently, in color-first notation,
+\[
+\begin{split}
+W(7,3)&>344,\\
+w(2;3,32)&>1011,\qquad w(2;3,33)>1069,\\
+w(2;3,35)&>1205,\qquad w(2;3,36)>1259,\\
+w(2;3,39)&>1420.
+\end{split}
+\]
+\end{theorem}
+
+\begin{table}[ht]
+\centering
+\caption{Certified improvements over the cited baselines.  ``Gain'' is the
+increase in the length of the exhibited coloring, not a claim about the
+unknown exact value.}
+\label{tab:results}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Color-first quantity & Cited bound & Bound here & Gain\\
+\midrule
+\(W(7,3)\)       & \(>343\)  & \(>344\)  & 1\\
+\(w(2;3,32)\)    & \(>1006\) & \(>1011\) & 5\\
+\(w(2;3,33)\)    & \(>1063\) & \(>1069\) & 6\\
+\(w(2;3,35)\)    & \(>1204\) & \(>1205\) & 1\\
+\(w(2;3,36)\)    & \(>1257\) & \(>1259\) & 2\\
+\(w(2;3,39)\)    & \(>1418\) & \(>1420\) & 2\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The cited mixed baselines are the certificate lengths in the appendix of
+Ahmed--Kullmann--Snevily \cite{ahmed2014}; the classical baseline is
+Komkov's certificate \cite{komkov2020}.  For \(t=31,34,37,38\), our searches
+did not improve the corresponding mixed baselines \(930,1143,1338,1378\).
+This negative statement describes the run outcome only and makes no
+mathematical claim about those four unknown values.
+
+\section{Certificates and verification}
+\label{sec:verification}
+
+\subsection{Certificate format}
+
+A certificate is a whitespace-separated sequence
+\[
+  r;\quad k_1,\ldots,k_r;\quad n;\quad c_1,\ldots,c_n,
+\]
+where \(c_j\in\{1,\ldots,r\}\) is the color of \(j\).  Comment lines are
+allowed, but the verifier rejects missing colors, extra integer tokens,
+out-of-range colors, and malformed parameters.  Exit status 0 means valid,
+1 means a forbidden progression was found, and 2 means malformed input.
+
+\subsection{Exhaustive checker}
+
+For each possible first element \(a\), the verifier takes \(i=c_a\), sets
+\(k=k_i\), and enumerates
+\[
+  1\leq d\leq \left\lfloor\frac{n-a}{k-1}\right\rfloor.
+\]
+It rejects if all of
+\[
+  c_a,c_{a+d},\ldots,c_{a+(k-1)d}
+\]
+equal \(i\).
+
+\begin{lemma}
+\label{lem:verifier}
+If the verifier accepts a certificate with parameters
+\((r;k_1,\ldots,k_r;n)\), then the certificate establishes
+\(w(r;k_1,\ldots,k_r)>n\).
+\end{lemma}
+
+\begin{proof}
+Suppose a forbidden monochromatic progression exists.  Let \(a\) be its
+first term, \(d\) its common difference, and \(i=c_a\) its color.  Because
+the progression lies in \(\interval n\), the verifier's loop at \(a\)
+includes this \(d\).  It then checks exactly \(k_i\) terms and finds all of
+them colored \(i\), so it rejects.  The contrapositive gives the claim.
+\end{proof}
+
+\begin{proof}[Proof of \Cref{thm:main}]
+The six complete colorings named in \Cref{tab:certificates} are included in
+the companion repository.  Each was accepted by the standalone verifier at
+commit
+\texttt{\seqsplit{bd16953d517f57935574b15d60f7c5715a9d5c75}}, and each file
+matches the SHA-256 digest in that table.  Apply \Cref{lem:verifier}.
+\end{proof}
+
+Implementation independence is intentional: \texttt{verifier.c} shares no
+code with a generator, searcher, model decoder, or source-expansion tool.
+An independent Python program generates eight small regression instances
+covering valid, invalid, mixed-length, swapped-length, malformed, and
+\(k=2\) cases.  The repository's full check also regenerates 12 published
+construction certificates byte for byte, accepts all 34 tracked complete
+certificates, and validates the certificate hash manifest.  These tests do
+not replace the soundness argument above, but they reduce the risk of a
+parser or implementation error.
+
+\section{Search encodings and pipeline}
+\label{sec:search}
+
+\subsection{Implicit Boolean encoding for
+\texorpdfstring{\(w(2;3,t)\)}{w(2;3,t)}}
+
+Let \(x_j=1\) mean that \(j\) has color 1, the color that must avoid
+\(3\ap\)s.  Every \(3\ap\), \((a,b,c)\), induces the negative clause
+\[
+  \lnot x_a\lor\lnot x_b\lor\lnot x_c.
+\]
+Every \(t\ap\), \((a_1,\ldots,a_t)\), induces the positive clause
+\[
+  x_{a_1}\lor\cdots\lor x_{a_t}.
+\]
+The searcher stores progressions and their incidence with elements, but does
+not materialize a general-purpose SAT object on its hot path.  It maintains
+violation counts incrementally after a flip.
+
+\subsection{Uniform encoding for
+\texorpdfstring{\(W(7,3)\)}{W(7,3)}}
+
+For the 7-color instance, variables \(y_{j,q}\) encode that element \(j\)
+has color \(q\).  Exactly-one constraints are imposed for every element,
+and every \(3\ap\) \((a,b,c)\) and color \(q\) contributes
+\[
+  \lnot y_{a,q}\lor\lnot y_{b,q}\lor\lnot y_{c,q}.
+\]
+Search states use a direct one-color-per-element representation; the
+one-hot encoding is emitted only for the CDCL lane.
+
+\subsection{Focused local search}
+
+The stochastic lane combines mixed random-walk ideas
+\cite{selman1994} with DDFW-style redistribution of clause weights
+\cite{ishtaiwi2005}.  A step focuses on a currently violated progression,
+scores recolorings using the affected incidence lists, and makes either a
+greedy or noisy move.  Restarts include published-certificate seeds,
+reversals, cyclic and residue templates, palindromic instances, and random
+starts.  Independent workers explore different restart classes and seeds.
+Best-so-far states are explicitly marked as \emph{not certificates}.
+
+\subsection{Phase-seeded CDCL}
+
+Local search often reached assignments with one violated progression but
+could not coordinate the several flips needed to escape.  We therefore
+emitted a conventional CNF while polarity-transforming each primary variable
+so that the solver's default phase represents the supplied search state.
+Kissat 4.0.4 \cite{kissat2024} was used for the decisive full-instance runs;
+CaDiCaL 3.0.1 \cite{biere2024} provided an API lane for Hamming-ball, fixed-window,
+reflection, and small-instance cross-checks.  Kissat and CaDiCaL are
+candidate generators only.  A decoded model is not a result until the
+standalone verifier accepts it.
+
+Reflection lex leaders were used only where their safety followed from the
+unseeded symmetry.  Palindromic and fixed-window constraints were treated as
+streamlining: satisfiable output still gives an unconditional lower bound,
+but an unsatisfiable streamlined instance says nothing about the unrestricted
+problem.  No unsatisfiability claim is made in this paper.
+
+\section{How the six certificates were found}
+\label{sec:case-studies}
+
+\subsection{The \texorpdfstring{\(W(7,3)\)}{W(7,3)} ``wall''}
+
+Starting from Komkov's coloring at \(n=343\), repeated DDFW runs at
+\(n=344\) reached assignments with a single violation.  Across independent
+basins, that violation was always
+\[
+  \{2,173,344\},
+\]
+the \(3\ap\) with common difference 171.  This repeated obstruction was
+useful phase information, not evidence of impossibility.
+
+Unseeded Kissat did not settle even the known-satisfiable \(n=343\) encoding
+within ten minutes in our calibration.  With seed-relative polarities, the
+same calibration completed in under one second.  A phase-seeded run from one
+of the one-violation \(n=344\) basins then returned a model.  The accepted
+coloring differs from that basin at 25 positions, distributed across the
+interval, and recolors element 344 itself.  The experiment therefore
+supports a specific hybrid account: local search located a strong basin, and
+CDCL assembled a globally coordinated escape that single-flip search had not
+found.
+
+At \(n=345\), two further local-search chains reached the same remaining
+violation \(\{3,174,345\}\), also with difference 171, but bounded
+phase-seeded CDCL runs returned no decision.  This is reported only as a
+reproducible search observation.  It is neither evidence of unsatisfiability
+nor a determination of \(W(7,3)\).
+
+\subsection{The mixed family}
+
+The nine compact certificates for \(t=31,\ldots,39\) were transcribed from
+the Ahmed--Kullmann--Snevily appendix, mechanically expanded, and accepted
+by the standalone verifier before use as seeds.  For \(t=32,33,36,39\),
+orientation and endpoint-color sweeps produced short extension ladders.
+Several steps required no interior change; one \(t=33\) step required a
+single local-search flip.  The final accepted lengths were 1011, 1069, 1259,
+and 1420 respectively.
+
+The \(t=35\) step illustrates the value of the CDCL handoff.  A reversed
+seed at \(n=1205\) remained one violation away under the endpoint probe.
+Three phase-seeded Kissat configurations returned the same satisfying model
+in 0.05--0.06 seconds.  Relative to the basin, the model flips exactly
+elements 892 and 1188.  That two-variable coordination was unavailable to
+the one-flip endpoint repair, and all three decoded copies independently
+passed the verifier.
+
+Bounded searches for the next lengths and for \(t=31,34,37,38\) were
+undecided.  In particular, a timeout is recorded as \textsc{unknown}, never
+as unsatisfiable.
+
+\section{Human--AI workflow and epistemic controls}
+\label{sec:ai}
+
+Recent systems have coupled machine learning or large language models with
+mathematical evaluators, program search, or human interpretation
+\cite{davies2021,romeraparedes2024,novikov2025}.  The workflow here was less
+autonomous and more conversational.  OpenAI Codex and Anthropic Claude were
+used interactively for literature triage, experiment design, C and Python
+implementation, process supervision, code review, and log synthesis.  Google
+Gemini was used during a manuscript-stage check that exposed the danger of
+reversing color-first and length-first notation.
+
+The human researcher chose the target family, set compute budgets, approved
+external actions, redirected unsuccessful work, and decided what evidence
+could support a public claim.  The language-model systems proposed and
+implemented many of the concrete search steps.  They are acknowledged as
+research tools rather than listed as authors because they cannot take
+responsibility for the manuscript or its claims.
+
+Four controls separated useful assistance from mathematical evidence:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Generator--verifier separation.}  Search code and the
+        verifier share no implementation.
+  \item \textbf{Complete witnesses.}  A score, a nearly satisfying state,
+        an LLM assertion, or a SAT timeout is not a result.
+  \item \textbf{Persistent provenance.}  Contemporaneous logs record failed
+        approaches, corrections, solver versions, seeds, and bounded
+        \textsc{unknown} outcomes.
+  \item \textbf{Notation redundancy.}  Formulas are paired with plain
+        descriptions of the physical coloring, and verifier output repeats
+        the color count and forbidden lengths before printing a formula.
+\end{enumerate}
+
+This differs from FunSearch \cite{romeraparedes2024} and AlphaEvolve
+\cite{novikov2025}: no learned or evolutionary controller maintained a
+population of programs.  Instead, conversational agents helped build and
+operate a conventional, domain-specific SLS--SAT pipeline.  The common
+principle is evaluator grounding.  Here the evaluator is deliberately small,
+deterministic, and separate from every heuristic component.
+
+\section{Reproducibility}
+\label{sec:reproducibility}
+
+The companion repository is \repo.  At the verifier revision used for this
+paper, a verification-only reproduction requires a C11 compiler, POSIX
+\texttt{sh}, \texttt{make}, and Python 3:
+\begin{verbatim}
+make verifier
+./verifier certs/RECORD_W7_3_gt344.txt
+./verifier certs/m5_w2_3_32_gt1011.txt
+make check
+\end{verbatim}
+The final command rebuilds dependency-free programs, regenerates independent
+test fixtures, runs the verifier and incremental-state tests, reproduces
+published-source certificates, verifies all tracked certificates, and checks
+their SHA-256 digests.
+
+Search binaries were compiled with C99/C11 compilers and hot runs used
+\texttt{-O3 -march=native}; a profile-guided build was also exercised for
+the mixed local-search lane.  These optimizations affect search speed, not
+certificate meaning.  CaDiCaL and Kissat are not required for verification.
+The exact solver releases used for the final search lane were CaDiCaL 3.0.1
+and Kissat 4.0.4 (release commit \texttt{8af8e56}); the latter passed its
+bundled test suite before use.
+
+\section{Limitations and open questions}
+
+The paper establishes lower bounds only.  It supplies no proof of
+unsatisfiability at the next interval length and therefore no exact value.
+The repeated common-difference-171 obstruction near \(W(7,3)\) is an
+empirical feature of sampled basins, not a theorem about all colorings.
+Likewise, unsuccessful mixed-family searches do not rank the true difficulty
+of the remaining parameters.
+
+The verifier is small and tested but not formally verified.  Its source,
+independent fixtures, complete witnesses, and hashes are supplied so that
+others can inspect it, write a second checker, or verify the progressions
+directly.  An archival release should freeze the paper, source, certificates,
+and manifest together.
+
+Finally, the literature search and manuscript benefited from fallible
+language models.  This is a reason for stronger bibliographic and notation
+checks, not a reason to weaken them.  The certificate claims are independent
+of those tools; the priority claim remains subject to ordinary scholarly
+correction if an earlier certificate is located.
+
+\section*{Acknowledgments and AI-use statement}
+
+OpenAI Codex and Anthropic Claude materially assisted with code, literature
+triage, search orchestration, and manuscript preparation.  Google Gemini
+contributed to a notation sanity check.  All model outputs were reviewed in
+context, and no model output was accepted as mathematical evidence without a
+complete coloring passing the standalone verifier.  The author accepts
+responsibility for the paper.
+
+\appendix
+\section{Headline certificate files and hashes}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Complete files supporting \Cref{thm:main}.  Hashes are SHA-256.}
+\label{tab:certificates}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+Certificate file & SHA-256\\
+\midrule
+\path{certs/RECORD_W7_3_gt344.txt} &
+\texttt{\seqsplit{d9f008e1a8985d51c70b8875b12df7520ad83ac4659670ef770493f95d1afb22}}\\[3pt]
+\path{certs/m5_w2_3_32_gt1011.txt} &
+\texttt{\seqsplit{abe37f598351ac49f07e31a819c3ca87cdfd86d1537b9988613a18dc3c7df8cc}}\\[3pt]
+\path{certs/m5_w2_3_33_gt1069.txt} &
+\texttt{\seqsplit{ddcb28d7aec8a88ca572f1da9cfcd3ffa78fff59463a7e7b09332c9069e29bcf}}\\[3pt]
+\path{certs/m5_w2_3_35_gt1205.txt} &
+\texttt{\seqsplit{de399156d8673b1c241cf22db41b3eb968e150e2f68478760b0eeaba068d9d61}}\\[3pt]
+\path{certs/m5_w2_3_36_gt1259.txt} &
+\texttt{\seqsplit{182465150650d344bac38accce1187789a5c0561100ff9cd55a3534ff472d2de}}\\[3pt]
+\path{certs/m5_w2_3_39_gt1420.txt} &
+\texttt{\seqsplit{11e5cdef316bdb2ad107921786c599553fceb60b33d68d37236700de63c87a88}}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begingroup
+\raggedright
+\bibliographystyle{plain}
+\bibliography{references}
+\endgroup
+
+\end{document}
