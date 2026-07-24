@@ -50,6 +50,10 @@ uses AI assistants but does not introduce an artificial-intelligence method.
 9 pages, 2 tables. Source code, standalone verifier, complete certificates,
 and SHA-256 manifest: https://github.com/olaugh/vdw-search
 
+## License
+
+`CC BY 4.0` (Creative Commons Attribution 4.0 International)
+
 ## Fields to leave blank
 
 - Journal reference

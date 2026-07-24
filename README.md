@@ -196,6 +196,15 @@ release.
 
 ## License
 
-Original software and documentation are released under the
-[MIT License](LICENSE). Third-party source transcriptions are subject to the
-attribution and scope statement in [NOTICE.md](NOTICE.md).
+This repository uses licenses matched to each kind of material:
+
+- original software, scripts, build files, and general project documentation:
+  [MIT License](LICENSE);
+- the manuscript, PDF, and submission materials:
+  [CC BY 4.0](LICENSE-PAPER.md); and
+- original machine-readable certificates and generated research data:
+  [CC0 1.0](LICENSE-DATA.md).
+
+The CC0 dedication does not cover the AKS and Komkov certificate
+transcriptions or other identified third-party material. See
+[NOTICE.md](NOTICE.md) for provenance and the complete scope exclusions.

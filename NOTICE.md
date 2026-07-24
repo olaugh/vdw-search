@@ -1,8 +1,17 @@
 # Third-party provenance and licensing scope
 
-The MIT license in this repository covers original software and documentation
-created by the `vdw-search` contributors. It does not supersede any rights in
-material transcribed from or attributed to third-party publications.
+The licenses in this repository cover only material for which the
+`vdw-search` contributors hold the relevant rights:
+
+- `LICENSE` applies the MIT license to original software and general project
+  documentation;
+- `LICENSE-PAPER.md` applies CC BY 4.0 to the original manuscript and
+  submission materials; and
+- `LICENSE-DATA.md` applies CC0 1.0 to original machine-readable research
+  data.
+
+None of those licenses or dedications supersedes rights in material
+transcribed from or attributed to third-party publications.
 
 ## Ahmed–Kullmann–Snevily certificate sources
 

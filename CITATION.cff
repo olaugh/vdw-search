@@ -1,7 +1,9 @@
 cff-version: 1.2.0
 message: >-
   If you use this software or its certificates, please cite the archived
-  release and the associated paper when available.
+  release and the associated paper when available. The MIT license named
+  below applies to the software; paper and data license scopes are documented
+  in LICENSE-PAPER.md and LICENSE-DATA.md.
 title: "vdw-search: verifier-checked van der Waerden lower-bound certificates"
 type: software
 authors:

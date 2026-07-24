@@ -6,6 +6,11 @@ The paper deliberately uses color-first notation throughout:
 - `W(r,k)` means `r` colors and forbidden progression length `k`;
 - `w(r;k_1,...,k_r)` assigns forbidden length `k_i` to color `i`.
 
+The original manuscript source and rendered paper are licensed under
+[CC BY 4.0](../LICENSE-PAPER.md). This is separate from the MIT license for
+the repository's software and the CC0 dedication for original certificate
+data.
+
 Build from the repository root with:
 
 ```sh
