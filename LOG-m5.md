@@ -733,3 +733,16 @@ Thus the fast hybrid climb currently closes at `w(2;3,35) > 1205`.
 All PIDs returned and the orphan sweep was empty. Raw ignored data:
 `runs/t2-t35-climb2-20260723-m5/` and
 `runs/t2-kissat-t35-n1206-b1-20260723-m5/`.
+
+## 2026-07-23 — Public-repository cleanup design
+
+With both search lanes stopped and their results pushed, add only
+code-orthogonal publication infrastructure: a README, MIT license with
+third-party provenance notice, citation metadata, portable Makefile,
+independent regression/check scripts, certificate hashes, and Linux CI.
+Preserve both research logs and all certificates/seeds. Remove only the
+accidentally tracked local build binary and Python bytecode. Do not change
+the frozen verifier or either search algorithm. The full check must rebuild
+from source, exercise valid/invalid/malformed verifier cases, run the T2
+incremental-state self-test, accept every tracked certificate, and validate
+the checksum manifest before this cleanup is committed.

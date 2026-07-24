@@ -2,12 +2,23 @@
 verifier
 gen_residue
 sls
+aks_expand
+t2_sls
+t2_cnf
+t2_cadical
+t2_cadical.o
 *.o
 *.dSYM/
+__pycache__/
+*.py[cod]
 
 # bulky run logs and scratch (certs/, records.md, LOG*.md, sources always tracked)
 runs/
 *.out
 *.tmp
+*.cnf
+*.log
+*.profraw
+*.profdata
 cnf_cyclic
 cnf_linear

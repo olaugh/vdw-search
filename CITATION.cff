@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software or its certificates, please cite the archived
+  release and the associated paper when available.
+title: "vdw-search: verifier-checked van der Waerden lower-bound certificates"
+type: software
+authors:
+  - family-names: "O'Laughlin"
+    given-names: John
+repository-code: "https://github.com/olaugh/vdw-search"
+license: MIT
+keywords:
+  - van der Waerden numbers
+  - arithmetic progressions
+  - certificate verification
+  - SAT
+  - stochastic local search
+abstract: >-
+  Standalone verifier, complete coloring certificates, and search tools for
+  computational lower bounds on classical and mixed van der Waerden numbers.
