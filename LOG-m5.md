@@ -722,3 +722,14 @@ orphan sweeps were empty. Raw ignored data:
 `runs/t2-kissat-best1-b1-20260723-m5/`,
 `runs/t2-kissat-nextlength-b1-20260723-m5/`, and
 `runs/t2-kissat-t34-35-b1-20260723-m5/`.
+
+### t=35 next-length closure
+
+The new n=1205 certificate did not admit a zero/one-flip endpoint extension
+to n=1206. Its endpoint sweep produced two canonical best=1 basins. Six
+phase-seeded Kissat lanes (both basins × default/SAT-targeted/forced-SAT)
+then all reached the 120-second hard limit as UNKNOWN; no model was emitted.
+Thus the fast hybrid climb currently closes at `w(2;3,35) > 1205`.
+All PIDs returned and the orphan sweep was empty. Raw ignored data:
+`runs/t2-t35-climb2-20260723-m5/` and
+`runs/t2-kissat-t35-n1206-b1-20260723-m5/`.
