@@ -23,6 +23,6 @@ preferred-citation:
   authors:
     - family-names: "O'Laughlin"
       given-names: John
-  title: "Verifier-Guided Human-AI Search for Six Van der Waerden Lower Bounds"
+  title: "Verifier-Guided Human-AI Search for Six van der Waerden Lower Bounds"
   year: 2026
   url: "https://github.com/olaugh/vdw-search"

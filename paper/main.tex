@@ -4,6 +4,7 @@
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
 \usepackage{enumitem}
+\usepackage{float}
 \usepackage{microtype}
 \usepackage{seqsplit}
 \usepackage{tabularx}
@@ -12,7 +13,7 @@
 \usepackage[colorlinks=true,allcolors=blue!55!black]{hyperref}
 \usepackage[nameinlink,noabbrev]{cleveref}
 \hypersetup{
-  pdftitle={Verifier-Guided Human-AI Search for Six Van der Waerden Lower Bounds},
+  pdftitle={Verifier-Guided Human-AI Search for Six van der Waerden Lower Bounds},
   pdfauthor={John O'Laughlin},
   pdfsubject={Verifier-checked computational lower bounds for van der Waerden numbers},
   pdfkeywords={van der Waerden numbers, arithmetic progressions, SAT,
@@ -26,10 +27,10 @@
 \newcommand{\repo}{\url{https://github.com/olaugh/vdw-search}}
 
 \title{Verifier-Guided Human--AI Search for\\
-Six Van der Waerden Lower Bounds}
+Six van der Waerden Lower Bounds}
 \author{John O'Laughlin\\
 \small Independent researcher}
-\date{July 23, 2026}
+\date{July 2026}
 
 \begin{document}
 \maketitle
@@ -105,6 +106,15 @@ claim.  To the best of our literature search, the bounds improve the cited
 published baselines; the companion repository preserves the source
 transcriptions used in that comparison.
 
+The priority audit was last updated on July 23, 2026.  It checked the
+Ahmed--Kullmann--Snevily and Komkov source versions used for the baselines,
+Monroe's version-7 tables, the Rabung--Lotts construction paper, the
+\emph{Leaps in Bounds} tracker, and exact-formula and title searches across
+arXiv and the web through that date
+\cite{ahmed2014,komkov2020,monroe2022,rabung2012,leaps2026}.  This records the
+scope of the priority claim without making certificate validity depend on
+bibliographic completeness.
+
 \section{Notation and the physical meaning of the claims}
 \label{sec:notation}
 
@@ -133,6 +143,12 @@ every formula with its physical object:
 \textbf{\(W(7,3)>344\) means a 7-coloring of \(\interval{344}\) containing
 no monochromatic 3-term arithmetic progression.}
 \end{quote}
+
+A concrete collision is worth spelling out.  In length-first notation,
+\(W(7,3)\) denotes the quantity written here as \(W(3,7)\): three colors
+avoiding 7-term progressions.  Its known lower bound
+\(W(3,7)>48{,}811\) is unrelated to the 7-color, 3-term result of this paper
+\cite{rabung2012,leaps2026}.
 
 Likewise, \(w(2;3,32)>1011\) means a 2-coloring of
 \(\interval{1011}\) in which color 1 has no \(3\ap\) and color 2 has no
@@ -234,9 +250,12 @@ them colored \(i\), so it rejects.  The contrapositive gives the claim.
 \begin{proof}[Proof of \Cref{thm:main}]
 The six complete colorings named in \Cref{tab:certificates} are included in
 the companion repository.  Each was accepted by the standalone verifier at
-commit
-\texttt{\seqsplit{bd16953d517f57935574b15d60f7c5715a9d5c75}}, and each file
-matches the SHA-256 digest in that table.  Apply \Cref{lem:verifier}.
+the following commit:
+\begin{center}
+\small\texttt{bd16953d517f57935574b15d60f7c5715a9d5c75}
+\end{center}
+Each file matches the SHA-256 digest in that table.  Apply
+\Cref{lem:verifier}.
 \end{proof}
 
 Implementation independence is intentional: \texttt{verifier.c} shares no
@@ -417,7 +436,9 @@ make check
 The final command rebuilds dependency-free programs, regenerates independent
 test fixtures, runs the verifier and incremental-state tests, reproduces
 published-source certificates, verifies all tracked certificates, and checks
-their SHA-256 digests.
+their SHA-256 digests.  The intermediate accepted certificates in the
+successful \(t=32,33,36,39\) extension ladders are also tracked under
+\path{certs/} and covered by the same command.
 
 Search binaries were compiled with C99/C11 compilers and hot runs used
 \texttt{-O3 -march=native}; a profile-guided build was also exercised for
@@ -457,10 +478,11 @@ context, and no model output was accepted as mathematical evidence without a
 complete coloring passing the standalone verifier.  The author accepts
 responsibility for the paper.
 
+\clearpage
 \appendix
 \section{Headline certificate files and hashes}
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \small
 \caption{Complete files supporting \Cref{thm:main}.  Hashes are SHA-256.}

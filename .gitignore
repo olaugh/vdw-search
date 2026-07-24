@@ -1,4 +1,5 @@
 # build artifacts
+.DS_Store
 verifier
 gen_residue
 sls

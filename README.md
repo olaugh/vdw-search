@@ -170,7 +170,7 @@ complete certificates checked by the independent verifier.
 - M. Ahmed, O. Kullmann, and H. Snevily, “On the van der Waerden numbers
   \(w(2;3,t)\),” *Discrete Applied Mathematics* 174 (2014), 27–51.
   [arXiv:1102.5433](https://arxiv.org/abs/1102.5433)
-- A. Komkov, “New Lower Bounds for Van der Waerden Numbers,”
+- A. Komkov, “New Lower Bounds for van der Waerden Numbers,”
   [arXiv:1701.05603](https://arxiv.org/abs/1701.05603)
 - D. Monroe, “New Lower Bounds for van der Waerden Numbers Using Distributed
   Computing,” [arXiv:1603.03301](https://arxiv.org/abs/1603.03301)
