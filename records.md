@@ -93,8 +93,9 @@ paper.
 
 These are project results beyond the AKS appendix certificates above.
 “Accepted” means the complete tracked certificate passed the frozen
-standalone verifier. A post-2014 literature re-sweep is still required before
-calling either a world record.
+standalone verifier. A priority audit through 2026-07-23 found no later
+published certificate improving the cited AKS baselines; its scope and
+limitations are stated in the manuscript.
 
 | t | previous AKS bound | new certified bound | certificate length | tracked certificate | verifier |
 |---:|---:|---:|---:|---|---|
@@ -121,8 +122,8 @@ calling either a world record.
   **w(2;3,35) > 1205**, **w(2;3,36) > 1259**, and
   **w(2;3,39) > 1420** — M5 T2 improvements over the AKS 2014 appendix
   bounds (+5,+6,+1,+2,+2 respectively), with complete verifier-accepted
-  certificates. Literature re-sweep pending before any external record
-  claim.
+  certificates. The priority audit through 2026-07-23 found no later
+  published certificate improving these bounds.
 - **W(7,3) > 344** — NEW RECORD (2026-07-23), beats Komkov arXiv:1701.05603
   v5 (> 343). Certificate: `certs/RECORD_W7_3_gt344.txt`. Method: DDFW SLS
   (engine v2) drove the instance to a single violated AP — the same
@@ -131,7 +132,8 @@ calling either a world record.
   seed) completed the basin with 25 coordinated flips, incl. recoloring
   element 344 itself. SLS alone could not make that jump; CDCL alone could
   not touch the instance (>10 min on known-SAT n=343 unseeded). The hybrid
-  is the method. Announce-week re-sweep: pending.
+  is the method. The priority audit through 2026-07-23 found no later
+  published certificate improving this bound.
 - Reusable artifact: perfectly cyclic Z_255 8-coloring
   (`certs/CYCLIC_core_Z255_r8.txt`), unrolls to verified W(8,3) > 511
   (not a record; pipeline proof + seed).

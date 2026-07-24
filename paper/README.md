@@ -16,6 +16,17 @@ This uses Tectonic and writes the release-ready PDF to
 `output/pdf/vdw-search-paper.pdf`. Temporary TeX files remain under
 `tmp/pdfs/` and are ignored by Git.
 
+Build and clean-test the minimal arXiv source archive with:
+
+```sh
+make arxiv
+```
+
+The archive contains `main.tex`, `references.bib`, and the generated
+`main.bbl`. It is extracted into a fresh temporary directory and compiled
+again before the target succeeds. The resulting archive and test PDF are
+written under `output/arxiv/`.
+
 Before an archival submission, freeze a tagged repository release containing
 the paper, `verifier.c`, the six headline certificates, and
 `certs/SHA256SUMS`.

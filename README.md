@@ -36,8 +36,9 @@ The project currently contains complete certificates for these improvements:
 
 The mixed-number baseline is Ahmed, Kullmann, and Snevily (2014). The
 \(W(7,3)\) baseline is Komkov (2020). The certificates above establish the
-displayed inequalities independently of priority; a final literature sweep
-is in progress before describing them as records in a paper.
+displayed inequalities independently of priority. A priority audit completed
+on July 23, 2026 found no later published certificate improving any of the
+six cited baselines; its scope and limitations are stated in the paper.
 
 ## Verify the results
 
@@ -122,6 +123,16 @@ make paper
 The final PDF is written to `output/pdf/vdw-search-paper.pdf`. The manuscript
 states the physical coloring behind every headline formula and contains a
 separate human–AI methods and disclosure section.
+
+To produce and clean-build the minimal arXiv source archive:
+
+```sh
+make arxiv
+```
+
+This writes `output/arxiv/vdw-search-arxiv-source.tar.gz` and a PDF compiled
+from a fresh extraction of that archive. Copy-paste submission metadata and
+the announcement draft are tracked under [`submission/`](submission/).
 
 ## Building the search tools
 

@@ -14,7 +14,7 @@ PROGRAMS = verifier aks_expand gen_residue sls t2_sls t2_cnf \
 	cnf_linear cnf_cyclic
 
 .PHONY: all check test reproduce-published verify-certificates \
-	verify-hashes paper clean
+	verify-hashes paper arxiv clean
 
 all: $(PROGRAMS)
 
@@ -57,6 +57,9 @@ paper: paper/main.tex paper/references.bib
 	$(TECTONIC) paper/main.tex --outdir $(PDF_BUILD_DIR) \
 		--keep-logs --keep-intermediates
 	cp $(PDF_BUILD_DIR)/main.pdf $(PDF_OUTPUT_DIR)/vdw-search-paper.pdf
+
+arxiv: paper/main.tex paper/references.bib scripts/build_arxiv.sh
+	TECTONIC="$(TECTONIC)" sh scripts/build_arxiv.sh
 
 clean:
 	rm -f $(PROGRAMS) t2_cadical t2_cadical.o

@@ -24,3 +24,5 @@ runs/
 cnf_cyclic
 cnf_linear
 tmp/pdfs/
+tmp/arxiv/
+output/arxiv/
