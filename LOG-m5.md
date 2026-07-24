@@ -687,5 +687,38 @@ first real run:
   matched CaDiCaL SAT/UNSAT verdicts through the emitted reflection encoding,
   and every SAT model decoded to a frozen-verifier-accepted certificate.
 
-Kissat is not installed on this M5 host (the logged installation was on the
-other machine); CaDiCaL 3.0.1 is locally available for cross-validation.
+CaDiCaL 3.0.1 was locally available for cross-validation. For the real lane,
+official Kissat release 4.0.4 (`8af8e56f`) was built in `/private/tmp` with
+strict C99, `-O3 -march=native`; all 869 bundled test jobs passed.
+
+### Phase-seeded Kissat results and t=35 certificate
+
+A known-valid t=32,n=1011 seed calibration decoded and passed the frozen
+verifier with both forced phase directions in 0.02 seconds. Three bounded
+full-instance batches then used `--phase=false`, 120-second hard limits, and
+default/SAT-targeted/forced portfolios:
+
+- 16 lanes over four canonical t=37/t=38 best=1 basins: all UNKNOWN after
+  120 seconds, with roughly 1.1M--1.34M conflicts per lane;
+- 18 lanes over six canonical immediate-frontier best=1 basins at t=32,
+  t=33, t=36, and t=39: all UNKNOWN after 120 seconds, with roughly
+  1.05M--1.51M conflicts per lane;
+- 15 lanes over two canonical t=34 and three canonical t=35 best=1 basins:
+  all t=34 lanes and both original-orientation t=35 basins were UNKNOWN,
+  but every configuration on the reversed t=35 basin returned the same SAT
+  model in 0.05--0.06 seconds.
+
+The SAT model differs from its best=1 seed at only elements 892 and 1188,
+the two-flip coordination that the one-flip endpoint probe could not make.
+All three independently decoded models passed the frozen verifier. The
+tracked result is `certs/m5_w2_3_35_gt1205.txt`: frozen verifier
+`VALID ... lengths=(3,35), n=1205`, SHA-256
+`de399156d8673b1c241cf22db41b3eb968e150e2f68478760b0eeaba068d9d61`.
+This certifies `w(2;3,35) > 1205`, one point beyond the AKS appendix bound.
+
+Every launched Kissat PID had a hard TTL and was accounted for; post-batch
+orphan sweeps were empty. Raw ignored data:
+`runs/t2-kissat-phase-calibration-20260723-m5/`,
+`runs/t2-kissat-best1-b1-20260723-m5/`,
+`runs/t2-kissat-nextlength-b1-20260723-m5/`, and
+`runs/t2-kissat-t34-35-b1-20260723-m5/`.

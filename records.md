@@ -109,6 +109,7 @@ calling either a world record.
 | 33 | `w(2;3,33) > 1066` | `w(2;3,33) > 1067` | 1067 | `certs/m5_w2_3_33_gt1067.txt` | accepted |
 | 33 | `w(2;3,33) > 1067` | `w(2;3,33) > 1068` | 1068 | `certs/m5_w2_3_33_gt1068.txt` | accepted |
 | 33 | `w(2;3,33) > 1068` | `w(2;3,33) > 1069` | 1069 | `certs/m5_w2_3_33_gt1069.txt` | accepted |
+| 35 | `w(2;3,35) > 1204` | `w(2;3,35) > 1205` | 1205 | `certs/m5_w2_3_35_gt1205.txt` | accepted |
 | 36 | `w(2;3,36) > 1257` | `w(2;3,36) > 1258` | 1258 | `certs/m5_w2_3_36_gt1258.txt` | accepted |
 | 36 | `w(2;3,36) > 1258` | `w(2;3,36) > 1259` | 1259 | `certs/m5_w2_3_36_gt1259.txt` | accepted |
 | 39 | `w(2;3,39) > 1418` | `w(2;3,39) > 1419` | 1419 | `certs/m5_w2_3_39_gt1419.txt` | accepted |
@@ -117,10 +118,11 @@ calling either a world record.
 ## PROJECT RESULTS (certificates in certs/, all verifier-accepted)
 
 - **w(2;3,32) > 1011**, **w(2;3,33) > 1069**,
-  **w(2;3,36) > 1259**, and **w(2;3,39) > 1420** — M5 T2
-  improvements over the AKS 2014 appendix bounds (+5,+6,+2,+2), with complete
-  verifier-accepted certificates. Literature re-sweep pending before any
-  external record claim.
+  **w(2;3,35) > 1205**, **w(2;3,36) > 1259**, and
+  **w(2;3,39) > 1420** — M5 T2 improvements over the AKS 2014 appendix
+  bounds (+5,+6,+1,+2,+2 respectively), with complete verifier-accepted
+  certificates. Literature re-sweep pending before any external record
+  claim.
 - **W(7,3) > 344** — NEW RECORD (2026-07-23), beats Komkov arXiv:1701.05603
   v5 (> 343). Certificate: `certs/RECORD_W7_3_gt344.txt`. Method: DDFW SLS
   (engine v2) drove the instance to a single violated AP — the same
