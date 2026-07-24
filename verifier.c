@@ -16,9 +16,10 @@
  * progression a, a+d, ..., a+(k_i-1)d (d >= 1) inside [1, n] whose elements
  * are all colored i. Acceptance certifies the lower bound
  *
- *     w(k_1, ..., k_r; r) > n
+ *     w(r; k_1, ..., k_r) > n
  *
- * (for r = 2 and k_1 = k_2 = k this is W(2, k) > n).
+ * We use color-first notation throughout: for k_1 = ... = k_r = k this
+ * is the classical W(r, k) > n.
  *
  * Exit codes: 0 = certificate VALID, 1 = INVALID (a monochromatic AP is
  * reported), 2 = malformed input.
@@ -179,15 +180,27 @@ int main(int argc, char **argv) {
     }
   }
 
-  printf("VALID: r=%lld colors, lengths=(", r);
+  printf("VALID: n=%lld; colors=%lld; forbidden AP lengths=(", n, r);
   for (long long i = 1; i <= r; i++) {
     printf("%lld%s", klen[i], i < r ? "," : "");
   }
-  printf("), n=%lld — certifies w(", n);
-  for (long long i = 1; i <= r; i++) {
-    printf("%lld%s", klen[i], i < r ? "," : "");
+  printf("); color-first notation: ");
+  int uniform = 1;
+  for (long long i = 2; i <= r; i++) {
+    if (klen[i] != klen[1]) {
+      uniform = 0;
+      break;
+    }
   }
-  printf("; %lld) > %lld\n", r, n);
+  if (uniform) {
+    printf("W(%lld,%lld) > %lld\n", r, klen[1], n);
+  } else {
+    printf("w(%lld;", r);
+    for (long long i = 1; i <= r; i++) {
+      printf("%lld%s", klen[i], i < r ? "," : "");
+    }
+    printf(") > %lld\n", n);
+  }
   free(col);
   return 0;
 }

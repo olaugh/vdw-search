@@ -7,23 +7,32 @@ The repository's central rule is **certificate or nothing**: a search result
 is not a mathematical result until the independent standalone verifier
 accepts a complete coloring.
 
-## Results
+## Notation
 
-For the classical van der Waerden number \(W(r,k)\), a certificate of length
-\(n\) is an \(r\)-coloring of \(\{1,\ldots,n\}\) with no monochromatic
-\(k\)-term arithmetic progression. For the mixed number \(w(2;3,t)\), color
-1 avoids 3-term progressions and color 2 avoids \(t\)-term progressions.
+This repository uses **color-first notation**:
+
+- \(W(r,k)\) has \(r\) colors and forbids monochromatic \(k\)-term
+  arithmetic progressions;
+- \(w(r;k_1,\ldots,k_r)\) has \(r\) colors and color \(i\) forbids a
+  \(k_i\)-term arithmetic progression.
+
+Some literature instead writes the progression length first. In that
+convention, the quantity written here as \(W(7,3)\) may be labeled
+\(W(3,7)\). We therefore accompany every headline formula with the physical
+coloring it asserts.
+
+## Results
 
 The project currently contains complete certificates for these improvements:
 
-| Quantity | Previous published lower bound | Certified here | Certificate |
-|---|---:|---:|---|
-| \(W(7,3)\) | \(>343\) | **\(>344\)** | `certs/RECORD_W7_3_gt344.txt` |
-| \(w(2;3,32)\) | \(>1006\) | **\(>1011\)** | `certs/m5_w2_3_32_gt1011.txt` |
-| \(w(2;3,33)\) | \(>1063\) | **\(>1069\)** | `certs/m5_w2_3_33_gt1069.txt` |
-| \(w(2;3,35)\) | \(>1204\) | **\(>1205\)** | `certs/m5_w2_3_35_gt1205.txt` |
-| \(w(2;3,36)\) | \(>1257\) | **\(>1259\)** | `certs/m5_w2_3_36_gt1259.txt` |
-| \(w(2;3,39)\) | \(>1418\) | **\(>1420\)** | `certs/m5_w2_3_39_gt1420.txt` |
+| Color-first quantity | Physical certificate | Previous bound | Certified here | Certificate |
+|---|---|---:|---:|---|
+| \(W(7,3)\) | 7 colors on \([1,344]\), avoiding monochromatic 3-APs | \(>343\) | **\(>344\)** | `certs/RECORD_W7_3_gt344.txt` |
+| \(w(2;3,32)\) | 2 colors on \([1,1011]\), avoiding color-1 3-APs and color-2 32-APs | \(>1006\) | **\(>1011\)** | `certs/m5_w2_3_32_gt1011.txt` |
+| \(w(2;3,33)\) | 2 colors on \([1,1069]\), avoiding color-1 3-APs and color-2 33-APs | \(>1063\) | **\(>1069\)** | `certs/m5_w2_3_33_gt1069.txt` |
+| \(w(2;3,35)\) | 2 colors on \([1,1205]\), avoiding color-1 3-APs and color-2 35-APs | \(>1204\) | **\(>1205\)** | `certs/m5_w2_3_35_gt1205.txt` |
+| \(w(2;3,36)\) | 2 colors on \([1,1259]\), avoiding color-1 3-APs and color-2 36-APs | \(>1257\) | **\(>1259\)** | `certs/m5_w2_3_36_gt1259.txt` |
+| \(w(2;3,39)\) | 2 colors on \([1,1420]\), avoiding color-1 3-APs and color-2 39-APs | \(>1418\) | **\(>1420\)** | `certs/m5_w2_3_39_gt1420.txt` |
 
 The mixed-number baseline is Ahmed, Kullmann, and Snevily (2014). The
 \(W(7,3)\) baseline is Komkov (2020). The certificates above establish the
