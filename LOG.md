@@ -240,3 +240,30 @@ runs/g*), LOG.md, and the Phase-2 generators. Shared contract:
   in core-space then unrolled, lower-bound-only as always.
 - Hybrid endgame (SLS-to-wall -> phase-seeded CDCL) is now standing
   doctrine per B1; window-CDCL loop (B3) queued next in my lane.
+
+## 2026-07-23 — Session close for paper write-up (laptop)
+
+- ALL RUNNING DECISIONS TERMINATED UNDECIDED at user request (paper time):
+  linear n=345 kissat (2h06m elapsed, two seeds incl. fresh nv=1 basin),
+  cyclic m=259 seeded + m=259 unseeded/SB + m=261 (2h03m each), cyclic
+  m=447 r=10 (2h03m). NO verdicts — none of these are results, none may
+  be cited. W(7,3) > 345, W(8,3) > 515, W(10,3) > 892 all remain OPEN.
+- The ONE result to publish from this lane: **W(7,3) > 344**
+  (certs/RECORD_W7_3_gt344.txt, verifier-accepted; beats Komkov
+  arXiv:1701.05603v5's > 343). MUST re-run the literature sweep in
+  announce week before any external claim.
+- New for the paper's landscape section: n=345 wall CONFIRMED. Two
+  independent DDFW chains reached best_nv=1 with the IDENTICAL violated
+  AP {3, 174, 345} (d=171) — the exact analog of n=344's {2, 173, 344}
+  wall. The d=171 obstruction family recurs at consecutive frontier
+  lengths. Predicts {4, 175, 346} at n=346. Basin states banked in
+  seeds/basin_n345_nv1_{a,b}.txt (marked NOT certificates) for resumption.
+- Notable negative: phase-seeded kissat from the n=345 nv=1 basin did
+  NOT decide in 1h02m (vs <1s from the analogous n=344 basin) — the
+  345 escape, if it exists, is not a small coordinated flip like 344's
+  25-flip escape. Or n=345 is where W(7,3) tops out. Unknown.
+- Cyclic repair signal: DDFW on m=259 stalled at best_nv≈129-133 (three
+  seeds), m=261 at 94 — far from zero. Leans toward Komkov's acyclic
+  mutations being load-bearing for W(8,3), but that is a hunch, not a
+  verdict.
+- B3 window-CDCL loop: still unimplemented, queued for post-paper.
